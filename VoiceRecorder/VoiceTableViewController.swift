@@ -51,7 +51,9 @@ class VoiceTableViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.setNeedsLayout()
-
+        
+        view.backgroundColor = UIColor.recordBlack
+        
         let textFieldInsideSearchBar = searchBar.value(forKey: "searchField") as? UITextField
         textFieldInsideSearchBar?.textColor = UIColor.white
 //        taptoHidekeyBoard = UITapGestureRecognizer.init(target: self, Selector("handleTap"))
@@ -84,7 +86,7 @@ class VoiceTableViewController: UIViewController {
             }
         }
         
-        formatter.dateFormat = "yyyy MM dd"
+        formatter.dateFormat = "MMM dd, yyyy"
         calendar.timeZone = TimeZone(abbreviation: "GMT")!
         calendarView.delegate = self
         calendarView.dataSource = self
@@ -111,8 +113,7 @@ class VoiceTableViewController: UIViewController {
         
         delayRunOnMainThread(delay: 0.1) {
             self.calendarView.scrollToDate(Date() as Date, triggerScrollToDateDelegate: false, animateScroll: false)
-            let visiblaDatesRange = self.calendarView.visibleDates()
-            self.setupViewsOfCalendar(startDate: visiblaDatesRange.monthDates.first!, endDate: visiblaDatesRange.monthDates.last!)
+            self.setupViewsOfCalendar(startDate: Date().firstDayOfMonth(), endDate: Date().lastDayOfMonth())
         }
         
         tableView.backgroundColor = UIColor.clear
@@ -123,26 +124,7 @@ class VoiceTableViewController: UIViewController {
         self.sizingCell = (cellNib.instantiate(withOwner: nil, options: nil) as NSArray).firstObject as! TagCellView?
         
     }
-    @IBAction func scrollToDate(sender: AnyObject?) {
-        let date = formatter.date(from: "2016 03 11")
-        calendarView.scrollToDate(date!)
-    }
 
-    @IBAction func printSelectedDates() {
-        print("Selected dates --->")
-        for date in calendarView.selectedDates {
-            print(formatter.string(from: date))
-        }
-    }
-
-    @IBAction func next(sender: UIButton) {
-        //self.calendarView.scrollToNextSegment()
-        
-    }
-    @IBAction func previous(sender: UIButton) {
-        //self.calendarView.scrollToPreviousSegment()
-    }
-    
     @IBAction func onClickMonthButton(sender: AnyObject) {
         
         let monthName = DateFormatter().monthSymbols[(selectedMonth!-1) % 12]
@@ -236,7 +218,7 @@ class VoiceTableViewController: UIViewController {
         let keptDate = dateMakerFormatter.date(from: String(format: "%i/%i/%i",year,month,day))!
         
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMMM dd, yyyy"
+        dateFormatter.dateFormat = "MMM dd, yyyy"
         let selected = dateFormatter.string(from: keptDate)
         monthButton.setTitle(selected, for: UIControlState.normal)
         calendarView.selectDates([keptDate])
@@ -470,7 +452,7 @@ extension VoiceTableViewController: JTAppleCalendarViewDataSource {
     
     func configureCalendar(_ calendar: JTAppleCalendarView) -> ConfigurationParameters {
         
-        let startDate = formatter.date(from: "2016 02 01")!
+        let startDate = formatter.date(from: "Jan 01, 2016")!
         let endDate = Date()
         let parameters = ConfigurationParameters(startDate: startDate,
                                                  endDate: endDate,
@@ -515,7 +497,9 @@ extension VoiceTableViewController: JTAppleCalendarViewDelegate {
             print("Error: \(error.localizedDescription)")
         }
         
-        (cell as? CalendarCellView)?.setupCellBeforeDisplay(cellState: cellState, date: date, indicator: hasVoice)
+        (cell as? CalendarCellView)?.hasVoice = hasVoice
+        
+        (cell as? CalendarCellView)?.setupCellBeforeDisplay(cellState: cellState, date: date)
     }
     
     func calendar(_ calendar: JTAppleCalendarView, didDeselectDate date: Date, cell: JTAppleDayCellView?, cellState: CellState) {
@@ -525,7 +509,6 @@ extension VoiceTableViewController: JTAppleCalendarViewDelegate {
     func calendar(_ calendar: JTAppleCalendarView, didSelectDate date: Date, cell: JTAppleDayCellView?, cellState: CellState) {
         
         (cell as? CalendarCellView)?.cellSelectionChanged(cellState: cellState)
-        printSelectedDates()
         
         let curCalendar = Calendar.current
         let startOfDay = curCalendar.startOfDay(for: date)
@@ -537,7 +520,7 @@ extension VoiceTableViewController: JTAppleCalendarViewDelegate {
         let endOfDay = curCalendar.date(byAdding: components, to: startOfDay)
         
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMMM dd, yyyy"
+        dateFormatter.dateFormat = "MMM dd, yyyy"
         let selected = dateFormatter.string(from: date)
         monthButton.setTitle(selected, for: UIControlState.normal)
         selectedDate = endOfDay
@@ -598,12 +581,15 @@ extension VoiceTableViewController: UITableViewDataSource {
         let date = voiceRecord.date //voiceRecord.objectForKey("date") as! NSDate
         
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "hh:mm a"
-        dateFormatter.amSymbol = "AM"
-        dateFormatter.pmSymbol = "PM"
+        dateFormatter.dateFormat = "MMM"
 
-        let datestring = dateFormatter.string(from: date as Date)
+        var datestring = dateFormatter.string(from: date as Date)
         cell.dateLabel.text = String(datestring)
+        
+        dateFormatter.dateFormat = "dd"
+        datestring = dateFormatter.string(from: date as Date)
+        cell.dayLabel.text = String(datestring)
+        
         cell.tags = voiceRecord.tags! //voiceRecord.objectForKey("tags") as! [String]
 
         let annotation = MKPointAnnotation()
@@ -630,9 +616,19 @@ extension VoiceTableViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if selectedCellIndexPath == indexPath {
-            return 240
+            return 222
         }
-        return 67
+        return 75
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if selectedCellIndexPath == indexPath {
+            selectedCellIndexPath = nil
+        } else {
+            selectedCellIndexPath = indexPath
+        }
+        
+        self.tableView.reloadData()
     }
 }
 
@@ -752,4 +748,24 @@ extension VoiceTableViewController: UISearchBarDelegate {
         self.tableView.reloadData()
     }
     
+}
+
+extension Date {
+    func lastDayOfMonth() -> Date {
+        let calendar = Calendar.current
+        let dayRange = calendar.range(of: .day, in: .month, for: self)
+        let dayCount = dayRange!.count
+        var comp = calendar.dateComponents([.year, .month, .day], from: self)
+        
+        comp.day = dayCount
+        
+        return calendar.date(from: comp)!
+    }
+    
+    func firstDayOfMonth() -> Date {
+        let calendar: Calendar = Calendar.current
+        var components: DateComponents = calendar.dateComponents([.year, .month, .day], from: self)
+        components.setValue(1, for: .day)
+        return calendar.date(from: components)!
+    }
 }

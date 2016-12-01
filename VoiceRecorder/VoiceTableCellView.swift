@@ -12,9 +12,12 @@ import AVFoundation
 
 class VoiceTableCellView: UITableViewCell {
     
-    @IBOutlet var titleLabel: UILabel!
-    @IBOutlet var lengthLabel: UILabel!
-    @IBOutlet var dateLabel: UILabel!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var lengthLabel: UILabel!
+    @IBOutlet weak var dateLabel: UILabel!
+    @IBOutlet weak var dayLabel: UILabel!
+    @IBOutlet weak var transcriptionTextField: UITextView!
+    
 //    @IBOutlet var tagView: UICollectionView!
 //    @IBOutlet weak var mapView: MKMapView!
 //    @IBOutlet weak var progressView: UIProgressView!
@@ -41,15 +44,15 @@ class VoiceTableCellView: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         
-//        tagView.dataSource = self
-//        tagView.delegate = self
-        
-        let cellNib = UINib(nibName: "TagCellView", bundle: nil)
-//        self.tagView.registerNib(cellNib, forCellWithReuseIdentifier: "TagCell")
-//        self.tagView.backgroundColor = UIColor.clearColor()
-        self.sizingCell = (cellNib.instantiate(withOwner: nil, options: nil) as NSArray).firstObject as! TagCellView?
-//        tagView.reloadData()
-        print("Called VoiceTableCellView awakeFromNib()")
+////        tagView.dataSource = self
+////        tagView.delegate = self
+//        
+//        let cellNib = UINib(nibName: "TagCellView", bundle: nil)
+////        self.tagView.registerNib(cellNib, forCellWithReuseIdentifier: "TagCell")
+////        self.tagView.backgroundColor = UIColor.clearColor()
+//        self.sizingCell = (cellNib.instantiate(withOwner: nil, options: nil) as NSArray).firstObject as! TagCellView?
+////        tagView.reloadData()
+//        print("Called VoiceTableCellView awakeFromNib()")
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {

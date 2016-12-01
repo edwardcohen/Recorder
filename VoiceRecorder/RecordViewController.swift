@@ -19,7 +19,6 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
     @IBOutlet var recordButton: UIButton!
 //    @IBOutlet var chevronButton: UIButton!
     @IBOutlet var transTextView: UITextView!
-    @IBOutlet var backgroundImage: UIImageView!
     @IBOutlet var viewCenterRecord: UIView!
 //    @IBOutlet var timerLabel: UILabel!
     @IBOutlet var doneButton: UIButton!
@@ -80,6 +79,7 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = UIColor.recordBlack
         viewCenterRecord.layer.cornerRadius = 27.5
         
         let dateFormatter = DateFormatter()
@@ -118,8 +118,8 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
         spinner.hidesWhenStopped = true
         spinner.center = view.center
         view.addSubview(spinner)
-
-        backgroundImage.isUserInteractionEnabled = true
+    
+        //backgroundImage.isUserInteractionEnabled = true
 
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPressed))
         longPress.minimumPressDuration = 0.2
@@ -322,18 +322,22 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
                 vCircularProgress.angle = 0
                 doneButton.alpha = 0.0
                 deleteButton.alpha = 0.0
-                backgroundImage.image = UIImage(named:"bg")
+                view.backgroundColor = UIColor.recordBlack
+            
+                //backgroundImage.image = UIImage(named:"bg")
 
 
         case RecordState.OneTime, RecordState.Continuous:
             viewCenterRecord.backgroundColor = UIColor(red: 0xFE/255, green: 0x00/255, blue: 0x00/255, alpha: 1.0)
-            backgroundImage.image = UIImage(named:"bgrecord")
+            view.backgroundColor = UIColor.recordRed
+            //backgroundImage.image = UIImage(named:"bgrecord")
             doneButton.alpha = 0.0
             deleteButton.alpha = 0.0
 
         case RecordState.Done:
             viewCenterRecord.backgroundColor = UIColor.white
-            backgroundImage.image = UIImage(named:"bg")
+            //backgroundImage.image = UIImage(named:"bg")
+            view.backgroundColor = UIColor.recordBlack
 
 //            recordButton.setBackgroundImage(UIImage(named:"progress0"), forState:  UIControlState.Normal)
             vCircularProgress.angle = 0
@@ -343,7 +347,8 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
 
         case RecordState.Pause:
             viewCenterRecord.backgroundColor = UIColor.white
-            backgroundImage.image = UIImage(named:"bg")
+            //backgroundImage.image = UIImage(named:"bg")
+            view.backgroundColor = UIColor.recordBlack
             doneButton.alpha = 1.0
             deleteButton.alpha = 1.0
 

@@ -27,6 +27,7 @@
 		8BD250941D9E63EB0000E359 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BD250931D9E63EB0000E359 /* CoreData.framework */; };
 		8BD250951D9EBAC10000E359 /* Pods_VoiceRecorder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3128D151D2541D5560030952 /* Pods_VoiceRecorder.framework */; };
 		8BFF2CA61D537C9000D84BF2 /* VoiceTableCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFF2CA51D537C9000D84BF2 /* VoiceTableCellView.swift */; };
+		E5E953A61DF04F480089294D /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5E953A51DF04F480089294D /* Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +56,7 @@
 		8BD250931D9E63EB0000E359 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		8BFA25831D523C2E00821EEC /* VoiceRecorder.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = VoiceRecorder.entitlements; sourceTree = "<group>"; };
 		8BFF2CA51D537C9000D84BF2 /* VoiceTableCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VoiceTableCellView.swift; sourceTree = "<group>"; };
+		E5E953A51DF04F480089294D /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,6 +117,7 @@
 				607FACD41AFB9204008FA782 /* Info.plist */,
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				607FACDC1AFB9204008FA782 /* Images.xcassets */,
+				E5E953A51DF04F480089294D /* Extensions.swift */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -360,6 +363,7 @@
 				8B0218BB1D50ED14007D208D /* RecordViewController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 				6B80035C1C9983A100A3ED9C /* CalendarCellView.swift in Sources */,
+				E5E953A61DF04F480089294D /* Extensions.swift in Sources */,
 				8B0218BD1D50ED2E007D208D /* CustomPresentAnimationController.swift in Sources */,
 				8B0275101D54DEF600983BF5 /* Voice.swift in Sources */,
 				8B02750C1D54D92A00983BF5 /* VoiceDetailViewController.swift in Sources */,

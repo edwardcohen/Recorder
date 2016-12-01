@@ -18,6 +18,8 @@ class CalendarCellView: JTAppleDayCellView {
     let textSelectedColor = UIColor(red:0xFF/255, green:0xFF/255, blue:0xFF/255, alpha:1.0)
     let textDeselectedColor = UIColor(red:0xFF/255, green:0xFF/255, blue:0xFF/255, alpha:1.0)
     let previousMonthTextColor = UIColor.gray
+    var hasVoice = false
+    
     lazy var todayDate : String = {
         [weak self] in
         let aString = self!.c.string(from: Date())
@@ -30,7 +32,7 @@ class CalendarCellView: JTAppleDayCellView {
         return f
     }()
     
-    func setupCellBeforeDisplay(cellState: CellState, date: Date, indicator: Bool) {
+    func setupCellBeforeDisplay(cellState: CellState, date: Date) {
         // Setup Cell text
         dayLabel.text =  cellState.text
         
@@ -46,7 +48,7 @@ class CalendarCellView: JTAppleDayCellView {
         configureVisibility(cellState: cellState)
         
         // Configure Indicator
-        dotLabel.isHidden = !indicator
+        dotLabel.isHidden = !hasVoice
         
         // With cell states you can literally control every aspect of the calendar view
         // Uncomment this code block to watch "JTAPPLE" spelt on the calendar
@@ -108,16 +110,16 @@ class CalendarCellView: JTAppleDayCellView {
         } else {
             if animateDeselection {
                 configureTextColor(cellState: cellState)
+                dotLabel.isHidden = !hasVoice
                 if selectedView.isHidden == false {
                     selectedView.animateWithFadeEffect(withCompletionHandler: { () -> Void in
                         self.selectedView.isHidden = true
-                        self.dotLabel.isHidden = true
                         self.selectedView.alpha = 0.3
                     })
                 }
             } else {
                 selectedView.isHidden = true
-//                dotLabel.hidden = true
+                dotLabel.isHidden = !hasVoice
 
             }
         }
