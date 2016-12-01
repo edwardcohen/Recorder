@@ -25,7 +25,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="eTP-bV-J3U" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3113" y="-479"/>
+            <point key="canvasLocation" x="3007" y="-479"/>
         </scene>
         <!--Voice Table View Controller-->
         <scene sceneID="tne-QT-ifu">
@@ -531,12 +531,12 @@
                                 </constraints>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wxZ-ce-ce1">
-                                <rect key="frame" x="67" y="566" width="30" height="30"/>
+                                <rect key="frame" x="67" y="566" width="25" height="32"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="30" id="LWF-VX-cLg"/>
-                                    <constraint firstAttribute="width" constant="30" id="zhy-1a-T17"/>
+                                    <constraint firstAttribute="height" constant="32" id="LWF-VX-cLg"/>
+                                    <constraint firstAttribute="width" constant="25" id="zhy-1a-T17"/>
                                 </constraints>
-                                <state key="normal" image="cancel_video_icon"/>
+                                <state key="normal" image="delete"/>
                                 <connections>
                                     <action selector="handleDelete" destination="h8c-J8-nD0" eventType="touchUpInside" id="fYE-gI-xXw"/>
                                 </connections>
@@ -559,12 +559,12 @@
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hOe-YY-Q9h">
-                                <rect key="frame" x="278" y="566" width="30" height="30"/>
+                                <rect key="frame" x="278" y="566" width="31" height="32"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="30" id="G9j-4I-nJ4"/>
-                                    <constraint firstAttribute="height" constant="30" id="Xga-Y3-u0U"/>
+                                    <constraint firstAttribute="width" constant="31" id="G9j-4I-nJ4"/>
+                                    <constraint firstAttribute="height" constant="32" id="Xga-Y3-u0U"/>
                                 </constraints>
-                                <state key="normal" image="aply"/>
+                                <state key="normal" image="Carrot"/>
                                 <connections>
                                     <action selector="doneTapped" destination="h8c-J8-nD0" eventType="touchUpInside" id="ibc-Ni-Fzf"/>
                                 </connections>
@@ -575,7 +575,7 @@
                             <constraint firstItem="DhL-gt-eJU" firstAttribute="centerX" secondItem="bh0-3L-G3l" secondAttribute="centerX" id="4nW-LR-3Zn"/>
                             <constraint firstAttribute="trailingMargin" secondItem="tGo-EI-OnG" secondAttribute="trailing" constant="14" id="7Ah-u7-YTx"/>
                             <constraint firstItem="Mue-6U-JZF" firstAttribute="top" secondItem="tGo-EI-OnG" secondAttribute="bottom" constant="24" id="7XB-Ut-qCH"/>
-                            <constraint firstItem="DhL-gt-eJU" firstAttribute="top" secondItem="wxZ-ce-ce1" secondAttribute="bottom" constant="-65" id="C2E-kp-09E"/>
+                            <constraint firstItem="DhL-gt-eJU" firstAttribute="top" secondItem="wxZ-ce-ce1" secondAttribute="bottom" constant="-67" id="C2E-kp-09E"/>
                             <constraint firstItem="hOe-YY-Q9h" firstAttribute="centerY" secondItem="wxZ-ce-ce1" secondAttribute="centerY" id="HFq-C5-8YL"/>
                             <constraint firstItem="IRB-iA-VqA" firstAttribute="top" secondItem="xib-lQ-GJO" secondAttribute="bottom" constant="58" id="Njl-4x-ePZ"/>
                             <constraint firstItem="H83-nK-t9o" firstAttribute="centerX" secondItem="bh0-3L-G3l" secondAttribute="centerX" id="Q9C-sZ-1nt"/>
@@ -585,7 +585,7 @@
                             <constraint firstItem="H83-nK-t9o" firstAttribute="leading" secondItem="bh0-3L-G3l" secondAttribute="leadingMargin" constant="14" id="VXC-io-XH0"/>
                             <constraint firstItem="Mue-6U-JZF" firstAttribute="leading" secondItem="bh0-3L-G3l" secondAttribute="leadingMargin" constant="14" id="dWl-Cm-dKU"/>
                             <constraint firstItem="IRB-iA-VqA" firstAttribute="top" secondItem="f52-Yo-MCe" secondAttribute="bottom" constant="35" id="dou-lx-YfR"/>
-                            <constraint firstItem="DhL-gt-eJU" firstAttribute="leading" secondItem="wxZ-ce-ce1" secondAttribute="trailing" constant="40" id="ePE-oa-nNE"/>
+                            <constraint firstItem="DhL-gt-eJU" firstAttribute="leading" secondItem="wxZ-ce-ce1" secondAttribute="trailing" constant="45" id="ePE-oa-nNE"/>
                             <constraint firstItem="tGo-EI-OnG" firstAttribute="centerX" secondItem="bh0-3L-G3l" secondAttribute="centerX" id="eiV-c0-cKz"/>
                             <constraint firstItem="f52-Yo-MCe" firstAttribute="centerX" secondItem="bh0-3L-G3l" secondAttribute="centerX" id="fDH-qO-dlY"/>
                             <constraint firstItem="tGo-EI-OnG" firstAttribute="top" secondItem="hsP-0W-AEa" secondAttribute="bottom" constant="40" id="fKX-RS-YLJ"/>
@@ -619,13 +619,12 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 </activityIndicatorView>
             </objects>
-            <point key="canvasLocation" x="3885.5999999999999" y="-479.01049475262374"/>
+            <point key="canvasLocation" x="3833" y="-479"/>
         </scene>
     </scenes>
     <resources>
-        <image name="aply" width="50" height="50"/>
+        <image name="Carrot" width="72" height="123"/>
         <image name="bg" width="375" height="667"/>
-        <image name="cancel_video_icon" width="30" height="30"/>
         <image name="delete" width="37" height="44"/>
         <image name="delete_icon" width="40" height="44"/>
         <image name="icon_minus" width="54" height="54"/>

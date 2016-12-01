@@ -671,12 +671,16 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
             transTextView.text = "Transcript goes here..."
             self.displayLink.isPaused = false
         }
+        
+        showCalender()
+//        if let viewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "VoiceTableViewController") as? VoiceTableViewController {
+//            viewController.navigationController?.pushViewController(viewController, animated: true)
+//        }
     }
     
     // MARK: - CloudKit Methods
     
-    func fetchAllRecords()
-    {
+    func fetchAllRecords() {
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName:"Voice")
         let sortDescriptor = NSSortDescriptor(key: "date", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
