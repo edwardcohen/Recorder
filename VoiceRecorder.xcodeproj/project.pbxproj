@@ -28,6 +28,9 @@
 		8BD250951D9EBAC10000E359 /* Pods_VoiceRecorder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3128D151D2541D5560030952 /* Pods_VoiceRecorder.framework */; };
 		8BFF2CA61D537C9000D84BF2 /* VoiceTableCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFF2CA51D537C9000D84BF2 /* VoiceTableCellView.swift */; };
 		E5E953A61DF04F480089294D /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5E953A51DF04F480089294D /* Extensions.swift */; };
+		FA7CDD2A1DF1751B0051C87E /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7CDD291DF1751B0051C87E /* Constants.swift */; };
+		FA7CDD2C1DF17A7B0051C87E /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7CDD2B1DF17A7B0051C87E /* MapViewController.swift */; };
+		FA7CDD2E1DF17F260051C87E /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7CDD2D1DF17F260051C87E /* ContainerViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,6 +60,9 @@
 		8BFA25831D523C2E00821EEC /* VoiceRecorder.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = VoiceRecorder.entitlements; sourceTree = "<group>"; };
 		8BFF2CA51D537C9000D84BF2 /* VoiceTableCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VoiceTableCellView.swift; sourceTree = "<group>"; };
 		E5E953A51DF04F480089294D /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		FA7CDD291DF1751B0051C87E /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		FA7CDD2B1DF17A7B0051C87E /* MapViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
+		FA7CDD2D1DF17F260051C87E /* ContainerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,6 +124,7 @@
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				607FACDC1AFB9204008FA782 /* Images.xcassets */,
 				E5E953A51DF04F480089294D /* Extensions.swift */,
+				FA7CDD291DF1751B0051C87E /* Constants.swift */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -144,6 +151,8 @@
 				8B09A6E81D5B606500EBF853 /* TagCellView.swift */,
 				543333101DCBAFE800F0E3C8 /* SegueFromLeft.swift */,
 				6B80035E1C9983AE00A3ED9C /* AnimationClass.swift */,
+				FA7CDD2B1DF17A7B0051C87E /* MapViewController.swift */,
+				FA7CDD2D1DF17F260051C87E /* ContainerViewController.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -207,9 +216,8 @@
 				TargetAttributes = {
 					607FACCF1AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
-						DevelopmentTeam = 5VY7X6W92A;
 						LastSwiftMigration = 0800;
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -365,8 +373,11 @@
 				6B80035C1C9983A100A3ED9C /* CalendarCellView.swift in Sources */,
 				E5E953A61DF04F480089294D /* Extensions.swift in Sources */,
 				8B0218BD1D50ED2E007D208D /* CustomPresentAnimationController.swift in Sources */,
+				FA7CDD2E1DF17F260051C87E /* ContainerViewController.swift in Sources */,
 				8B0275101D54DEF600983BF5 /* Voice.swift in Sources */,
+				FA7CDD2A1DF1751B0051C87E /* Constants.swift in Sources */,
 				8B02750C1D54D92A00983BF5 /* VoiceDetailViewController.swift in Sources */,
+				FA7CDD2C1DF17A7B0051C87E /* MapViewController.swift in Sources */,
 				8B09A6E91D5B606500EBF853 /* TagCellView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -493,16 +504,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				DEVELOPMENT_TEAM = 5VY7X6W92A;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = 3A8HNQGY2L;
 				INFOPLIST_FILE = VoiceRecorder/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = zelig.taprecord;
 				PRODUCT_NAME = VoiceRecorder;
-				PROVISIONING_PROFILE = "0218ed96-82df-4669-9789-54d4d4bce6f6";
-				PROVISIONING_PROFILE_SPECIFIER = "XC iOS: *";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 3.0.1;
 			};
@@ -516,16 +527,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Sufyan Anees (B89RVC8L4R)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				DEVELOPMENT_TEAM = 5VY7X6W92A;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = 3A8HNQGY2L;
 				INFOPLIST_FILE = VoiceRecorder/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = zelig.taprecord;
 				PRODUCT_NAME = VoiceRecorder;
-				PROVISIONING_PROFILE = "0218ed96-82df-4669-9789-54d4d4bce6f6";
-				PROVISIONING_PROFILE_SPECIFIER = "XC iOS: *";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 3.0.1;
 			};

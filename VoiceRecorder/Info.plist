@@ -26,6 +26,10 @@
 	<string>Use your location to record your voice. Your location is never shared.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Use your location to record your voice. Your location is never shared.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>VoiceRecorder wants to access your microphone</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Speech recognition will be used to determine which words you speak</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>
@@ -40,15 +44,13 @@
 	</array>
 	<key>UIStatusBarHidden</key>
 	<false/>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleLightContent</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>VoiceRecorder wants to access your microphone</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Speech recognition will be used to determine which words you speak</string>
 </dict>
 </plist>
