@@ -13,10 +13,10 @@ import CoreData
 import MapKit
 
 class VoiceTableViewController: UIViewController {
-//    var voiceRecords:[CKRecord] = []
-    @IBOutlet var searchBar: UISearchBar!
+
     var voiceRecords:[Voice] = []
     var originRecords:[Voice] = []
+    var filteredRecords: [Voice] = []
     var fetchResultController:NSFetchedResultsController<NSFetchRequestResult>!
     var audioFileURL: URL?
     var selectedDate: Date?
@@ -30,24 +30,23 @@ class VoiceTableViewController: UIViewController {
     var searchActive : Bool = false
 
     @IBOutlet weak var buttonsView: UIView!
-    @IBOutlet var monthButton: UIButton!
-    @IBOutlet var yearButton: UIButton!
-    @IBOutlet var calendarView: JTAppleCalendarView!
-    @IBOutlet var tableView: UITableView!
-//    @IBOutlet var tagView: UICollectionView!
-    @IBOutlet var spinner: UIActivityIndicatorView!
-    
-    @IBOutlet weak var calendarViewHeightContraint: NSLayoutConstraint!
-    
-    @IBOutlet weak var weekDaysStackView: UIStackView!
-    
-    let formatter = DateFormatter()
+  
 
-    var calendar  = Calendar(identifier: Calendar.Identifier.gregorian)
+    let formatter = DateFormatter()
     
+    var calendar  = Calendar(identifier: Calendar.Identifier.gregorian)
     var tags = [String]()
-    var sizingCell: TagCellView?
     var selectedCellIndexPath:IndexPath?
+    
+    @IBOutlet weak var searchBarView: UIView!
+    let searchController = UISearchController(searchResultsController: nil)
+    @IBOutlet weak var monthButton: UIButton!
+    @IBOutlet weak var collapseCalendarButton: UIButton!
+    @IBOutlet weak var calendarView: JTAppleCalendarView!
+    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var spinner: UIActivityIndicatorView!
+    @IBOutlet weak var calendarViewHeightContraint: NSLayoutConstraint!
+    @IBOutlet weak var weekDaysStackView: UIStackView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,17 +55,31 @@ class VoiceTableViewController: UIViewController {
         self.view.bringSubview(toFront: buttonsView)
         
         view.backgroundColor = UIColor.recordBlack
-        let textFieldInsideSearchBar = searchBar.value(forKey: "searchField") as? UITextField
+        searchController.delegate = self
+        searchController.searchBar.delegate = self
+        searchController.searchResultsUpdater = self
+        searchController.searchBar.showsCancelButton = false
+        searchController.dimsBackgroundDuringPresentation = false
+        definesPresentationContext = true
+        
+        tableView.delegate = self
+        tableView.dataSource = self
+        
+        view.backgroundColor = UIColor.recordBlack
+        searchController.searchBar.frame.size = searchBarView.frame.size
+        searchBarView.addSubview(searchController.searchBar)
+        searchController.searchBar.searchBarStyle = .minimal
+        
+        let textFieldInsideSearchBar = searchController.searchBar.value(forKey: "searchField") as? UITextField
         textFieldInsideSearchBar?.textColor = UIColor.white
-//        taptoHidekeyBoard = UITapGestureRecognizer.init(target: self, Selector("handleTap"))
         taptoHidekeyBoard = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         taptoHidekeyBoard?.numberOfTapsRequired = 1
     }
     
     func handleTap(sender: UITapGestureRecognizer? = nil) {
-        // handling code
-        searchBar.resignFirstResponder()
+        searchController.searchBar.resignFirstResponder()
     }
+    
     override func viewWillAppear(_ animated: Bool) {
         self.tableView.rowHeight = UITableViewAutomaticDimension
         
@@ -75,14 +88,13 @@ class VoiceTableViewController: UIViewController {
         view.addSubview(spinner)
         spinner.startAnimating()
         
-        getVoiceRecordsFromCoreData() { (success: Bool) -> Void in
+        getVoiceRecordsFromCoreData() { [unowned self] (success: Bool) -> Void in
             if success {
                 OperationQueue.main.addOperation() {
                     self.spinner.stopAnimating()
                     self.calendarView.reloadData()
                     self.calendarView.selectDates([Date()], triggerSelectionDelegate: true)
                     self.getTagsFromRecords()
-//                    self.tagView.reloadData()
                     self.tableView.reloadData()
                 }
             }
@@ -92,38 +104,24 @@ class VoiceTableViewController: UIViewController {
         calendar.timeZone = TimeZone(abbreviation: "GMT")!
         calendarView.delegate = self
         calendarView.dataSource = self
-        tableView.delegate = self
-        tableView.dataSource = self
-        searchBar.delegate = self;
-        
-//        tagView.delegate = self
-//        tagView.dataSource = self
-        
-        //        calendarView.translatesAutoresizingMaskIntoConstraints = false
         calendarView.registerCellViewXib(file: "CalendarCellView")
-        calendarView.direction = .horizontal                       // default is horizontal
-        //        calendarView.itemSize = CGSize( )
-        calendarView.cellInset = CGPoint(x: 1, y: 1)               // default is (3,3)
-        calendarView.allowsMultipleSelection = false               // default is false
-       // calendarView.firstDayOfWeek = .Sunday                      // default is Sunday
-        calendarView.scrollEnabled = true                          // default is true
-        calendarView.scrollingMode = .stopAtEachCalendarFrameWidth // default is .StopAtEachCalendarFrameWidth
-        calendarView.itemSize = nil                                // default is nil. Use a value here to change the size of your cells
+        calendarView.direction = .horizontal
+        calendarView.cellInset = CGPoint(x: 1, y: 1)
+        calendarView.allowsMultipleSelection = false
+        calendarView.scrollEnabled = true
+        calendarView.scrollingMode = .stopAtEachCalendarFrameWidth
+        calendarView.itemSize = nil
         calendarView.reloadData()
         
         // After reloading. Scroll to your selected date, and setup your calendar
         
         delayRunOnMainThread(delay: 0.1) {
+
             self.calendarView.scrollToDate(Date() as Date, triggerScrollToDateDelegate: false, animateScroll: false)
             self.setupViewsOfCalendar(startDate: Date().firstDayOfMonth(), endDate: Date().lastDayOfMonth())
         }
         
         tableView.backgroundColor = UIColor.clear
-        
-        let cellNib = UINib(nibName: "TagCellView", bundle: nil)
-//        self.tagView.registerNib(cellNib, forCellWithReuseIdentifier: "TagCell")
-//        self.tagView.backgroundColor = UIColor.clearColor()
-        self.sizingCell = (cellNib.instantiate(withOwner: nil, options: nil) as NSArray).firstObject as! TagCellView?
         
     }
 
@@ -165,7 +163,7 @@ class VoiceTableViewController: UIViewController {
 
     {
                 if self.calendarViewHeightContraint.constant == 0 {
-                    yearButton.setImage(UIImage(named:"icon_minus"), for: UIControlState.normal)
+                    collapseCalendarButton.setImage(UIImage(named:"icon_minus"), for: UIControlState.normal)
                     UIView.animate(withDuration: 0.5, animations: {
                         self.weekDaysStackView.isHidden = false
                         self.calendarViewHeightContraint.constant = 200
@@ -173,7 +171,7 @@ class VoiceTableViewController: UIViewController {
                         self.view.layoutIfNeeded()
                     })
                 } else {
-                    yearButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
+                    collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
                     UIView.animate(withDuration: 0.5, animations: {
                         self.weekDaysStackView.isHidden = true
                         self.calendarViewHeightContraint.constant = 0
@@ -182,12 +180,46 @@ class VoiceTableViewController: UIViewController {
                 }
     }
     
-    @IBAction func onBack()
-    {
-        _ = self.navigationController?.popToRootViewController(animated: true)
+    @IBAction func deleteRecordButtonClicked(_ sender: UIButton) {
+        
+        let deleteAlert = UIAlertController(title: "Delete Record", message: "Are you sure you want to delete this record?", preferredStyle: .alert)
+        deleteAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        
+        deleteAlert.addAction(UIAlertAction(title: "Yes", style: .default, handler: {
+            [unowned self] action in
+            
+            let managedContext = (UIApplication.shared.delegate as! AppDelegate).managedObjectContext
+            guard let selectedCellIndexPath = self.selectedCellIndexPath else {return}
+            let voiceRecord = self.voiceRecords[selectedCellIndexPath.row]
+            self.selectedCellIndexPath = nil
+            managedContext.delete(voiceRecord)
+            self.voiceRecords.remove(at: selectedCellIndexPath.row)
+            
+            do {
+                try managedContext.save()
+            } catch let error as NSError {
+                print("Error While Deleting Note: \(error.userInfo)")
+            }
+        }))
+        
+        present(deleteAlert, animated: true, completion: nil)
 
     }
- 
+    
+    
+    @IBAction func shareRecordButtonClicked(_ sender: UIButton) {
+        
+        guard let selectedCellIndexPath = selectedCellIndexPath else {return}
+        let voiceRecord = voiceRecords[selectedCellIndexPath.row]
+            
+        if let transcript = voiceRecord.transcript {
+            
+            let activityViewController = UIActivityViewController(activityItems: [transcript], applicationActivities: nil)
+            activityViewController.excludedActivityTypes = [UIActivityType.airDrop]
+            self.navigationController!.present(activityViewController, animated: true) {}
+        }
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
     }
@@ -425,6 +457,7 @@ extension VoiceTableViewController: NSFetchedResultsControllerDelegate {
         case .delete:
             if let _indexPath = indexPath {
                 tableView.deleteRows(at: [_indexPath], with: .fade)
+                calendarView.reloadData()
             }
         case .update:
             if let _indexPath = indexPath {
@@ -573,7 +606,11 @@ extension VoiceTableViewController: JTAppleCalendarViewDelegate {
 extension VoiceTableViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return searchArray.count
+        
+        if searchController.isActive && searchController.searchBar.text != "" {
+            return filteredRecords.count
+        }
+        return voiceRecords.count
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -582,11 +619,16 @@ extension VoiceTableViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! VoiceTableCellView
         
         // Configure the cell...
-        let voiceRecord = searchArray.object(at: indexPath.row) as! Voice
+        let voiceRecord: Voice
+        if searchController.isActive && searchController.searchBar.text != "" {
+            voiceRecord = filteredRecords[indexPath.row]
+        } else {
+            voiceRecord = voiceRecords[indexPath.row]
+        }
         
-//        let voiceRecord = voiceRecords[indexPath.row]
+        cell.titleLabel.text = voiceRecord.title
+        //cell.transcriptionTextField.text = voiceRecord.transcript
         
-        cell.titleLabel.text = voiceRecord.transcript //voiceRecord.objectForKey("title") as? String
         let  minutes = voiceRecord.length.intValue / 60
         let  seconds = voiceRecord.length.intValue % 60
         cell.lengthLabel.text = String(format:"%02i:%02i", minutes, seconds)
@@ -635,7 +677,7 @@ extension VoiceTableViewController: UITableViewDelegate {
         if selectedCellIndexPath == indexPath {
             return 222
         }
-        return 75
+        return 70
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -649,50 +691,6 @@ extension VoiceTableViewController: UITableViewDelegate {
     }
 }
 
-// MARK: UICollectionViewDataSource
-extension VoiceTableViewController: UICollectionViewDataSource {
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return tags.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! TagCellView
-        self.configureCell(cell: tagCell, forIndexPath: indexPath as IndexPath)
-        return tagCell
-    }
-    
-    func configureCell(cell: TagCellView, forIndexPath indexPath: IndexPath) {
-        cell.tagLabel.text = tags[indexPath.item]
-    }
-
-}
-
-// MARK: UICollectionViewDelegate
-extension VoiceTableViewController: UICollectionViewDelegate {
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("Selected Tag ---> \(tags[indexPath.item])")
-        voiceRecords = originRecords.filter() {
-            if let curtags = ($0 as Voice).tags as [String]! {
-                return curtags.contains(tags[indexPath.item])
-            } else {
-                return false
-            }
-        }
-        self.tableView.reloadData()
-    }
-    
-}
-
-// MARK: UICollectionViewDelegateFlowLayout
-extension VoiceTableViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        self.configureCell(cell: self.sizingCell!, forIndexPath: indexPath)
-        return self.sizingCell!.systemLayoutSizeFitting(UILayoutFittingCompressedSize)
-    }
-}
-
 // MARK: UISearchBarDelegate
 extension VoiceTableViewController: UISearchBarDelegate {
     
@@ -701,15 +699,13 @@ extension VoiceTableViewController: UISearchBarDelegate {
         self.view .addGestureRecognizer(taptoHidekeyBoard!)
         
         if self.calendarViewHeightContraint.constant > 0 {
-            yearButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
+            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
             UIView.animate(withDuration: 0.5, animations: {
                 self.weekDaysStackView.isHidden = true
                 self.calendarViewHeightContraint.constant = 0
                 self.view.layoutIfNeeded()
             })
         }
-        
-        searchActive = true;
     }
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
@@ -717,72 +713,51 @@ extension VoiceTableViewController: UISearchBarDelegate {
         searchBar.resignFirstResponder();
         self.view.removeGestureRecognizer(taptoHidekeyBoard!)
         if self.calendarViewHeightContraint.constant == 0 {
-            yearButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
+            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
             UIView.animate(withDuration: 0.5, animations: {
                 self.weekDaysStackView.isHidden = true
                 self.calendarViewHeightContraint.constant = 0
                 self.view.layoutIfNeeded()
             })
-            
         }
-        searchActive = false;
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchActive = false;
         searchBar.resignFirstResponder();
-        
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchActive = false;
         searchBar.resignFirstResponder();
-        
     }
-    
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        
-        if searchText.characters.count > 0 {
-            for _ in voiceRecords {
-                
-                //              let  Voice1 = voiceRecords[i] as Voice
-                //                if Voice1.tr {
-                //                    <#code#>
-                //                }
-            }
-        }
-        
-        //        filtered = data.filter({ (text) -> Bool in
-        //            let tmp: NSString = text
-        //            let range = tmp.rangeOfString(searchText, options: NSStringCompareOptions.CaseInsensitiveSearch)
-        //            return range.location != NSNotFound
-        //        })
-        //        if(filtered.count == 0){
-        //            searchActive = false;
-        //        } else {
-        //            searchActive = true;
-        //        }
-        self.tableView.reloadData()
-    }
-    
 }
 
-extension Date {
-    func lastDayOfMonth() -> Date {
-        let calendar = Calendar.current
-        let dayRange = calendar.range(of: .day, in: .month, for: self)
-        let dayCount = dayRange!.count
-        var comp = calendar.dateComponents([.year, .month, .day], from: self)
+extension VoiceTableViewController: UISearchControllerDelegate {
+    
+    func willPresentSearchController(_ searchController: UISearchController) {
         
-        comp.day = dayCount
+        searchController.searchBar.setShowsCancelButton(false, animated: false)
+//        searchController.searchBar.becomeFirstResponder()
+//        UIView.animate(withDuration: 0.1) { () -> Void in
+//            self.view.alpha = 1.0
+//            searchController.searchBar.alpha = 1.0
+//        }
         
-        return calendar.date(from: comp)!
+       // searchController.searchBar.setShowsCancelButton(false, animated: false)
+    }
+}
+
+// MARK: UISearchResultsUpdating
+extension VoiceTableViewController: UISearchResultsUpdating {
+    
+    func updateSearchResults(for searchController: UISearchController) {
+        filterContentForSearchText(searchText: searchController.searchBar.text!)
     }
     
-    func firstDayOfMonth() -> Date {
-        let calendar: Calendar = Calendar.current
-        var components: DateComponents = calendar.dateComponents([.year, .month, .day], from: self)
-        components.setValue(1, for: .day)
-        return calendar.date(from: components)!
+    func filterContentForSearchText(searchText: String, scope: String = "All") {
+        filteredRecords = voiceRecords.filter { record in
+            guard let transcript = record.transcript else { return false }
+            return transcript.lowercased().contains(searchText.lowercased())
+        }
+        tableView.reloadData()
     }
 }
