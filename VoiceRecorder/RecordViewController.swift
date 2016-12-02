@@ -325,7 +325,7 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
     }
     
     func SpeechTotextConversion() {
-        guard audioEngine.isRunning else { return }
+        guard !audioEngine.isRunning else { return }
         
         if let recognitionTask = recognitionTask {
             recognitionTask.cancel()
