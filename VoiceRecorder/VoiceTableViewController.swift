@@ -23,12 +23,13 @@ class VoiceTableViewController: UIViewController {
     var selectedMonth : Int?
     var selectedYear : Int?
     var taptoHidekeyBoard : UITapGestureRecognizer?
-    
+    var scrollView: UIScrollView?
     var searchArray : NSMutableArray!
     
 
     var searchActive : Bool = false
 
+    @IBOutlet weak var buttonsView: UIView!
     @IBOutlet var monthButton: UIButton!
     @IBOutlet var yearButton: UIButton!
     @IBOutlet var calendarView: JTAppleCalendarView!
@@ -51,16 +52,17 @@ class VoiceTableViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.setNeedsLayout()
+        self.addGradientFooter()
+        self.view.bringSubview(toFront: buttonsView)
         
         view.backgroundColor = UIColor.recordBlack
-        
         let textFieldInsideSearchBar = searchBar.value(forKey: "searchField") as? UITextField
         textFieldInsideSearchBar?.textColor = UIColor.white
 //        taptoHidekeyBoard = UITapGestureRecognizer.init(target: self, Selector("handleTap"))
         taptoHidekeyBoard = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         taptoHidekeyBoard?.numberOfTapsRequired = 1
-    
     }
+    
     func handleTap(sender: UITapGestureRecognizer? = nil) {
         // handling code
         searchBar.resignFirstResponder()
@@ -382,7 +384,20 @@ class VoiceTableViewController: UIViewController {
     {
         return 300.0
     }
-
+    
+    
+    @IBAction func goToLocation(_ sender: UIButton) {
+        if let scrollView = scrollView {
+            scrollView.setContentOffset(CGPoint.zero, animated: true)
+        }
+    }
+    
+    @IBAction func goToRecord(_ sender: UIButton) {
+        if let scrollView = scrollView {
+            let somePosition = CGPoint(x: self.view.frame.size.width, y: 0)
+            scrollView.setContentOffset(somePosition, animated: true)
+        }
+    }
 }
 
 func delayRunOnMainThread(delay:Double, closure: @escaping ()->()) {
@@ -608,6 +623,8 @@ extension VoiceTableViewController: UITableViewDataSource {
 //        cell.tagView.reloadData()
         return cell
     }
+    
+    
 
 }
 
