@@ -588,6 +588,9 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
         
         if let scrollView = scrollView {
             let somePosition = CGPoint(x: self.view.frame.size.width * 2, y: 0)
+            let voiceTable = self
+//                self.superclass.childViewControllers[2] as! VoiceTableViewController
+            voiceTable.viewWillAppear(true)
             scrollView.setContentOffset(somePosition, animated: true)
         }
     }
@@ -670,6 +673,7 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
     @IBAction func goToList(_ sender: UIButton) {
         if let scrollView = scrollView {
             let somePosition = CGPoint(x: self.view.frame.size.width * 2, y: 0)
+            
             scrollView.setContentOffset(somePosition, animated: true)
         }
     }

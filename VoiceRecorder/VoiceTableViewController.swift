@@ -69,6 +69,7 @@ class VoiceTableViewController: UIViewController {
         searchController.searchBar.frame.size = searchBarView.frame.size
         searchBarView.addSubview(searchController.searchBar)
         searchController.searchBar.searchBarStyle = .minimal
+        searchController.searchBar.isHidden = true
         
         let textFieldInsideSearchBar = searchController.searchBar.value(forKey: "searchField") as? UITextField
         textFieldInsideSearchBar?.textColor = UIColor.white
@@ -153,31 +154,23 @@ class VoiceTableViewController: UIViewController {
         }
         
     }
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
 
-    @IBAction func onBtnCollapseCallender()
-
-    {
-                if self.calendarViewHeightContraint.constant == 0 {
-                    collapseCalendarButton.setImage(UIImage(named:"icon_minus"), for: UIControlState.normal)
-                    UIView.animate(withDuration: 0.5, animations: {
-                        self.weekDaysStackView.isHidden = false
-                        self.calendarViewHeightContraint.constant = 200
-                        
-                        self.view.layoutIfNeeded()
-                    })
-                } else {
-                    collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
-                    UIView.animate(withDuration: 0.5, animations: {
-                        self.weekDaysStackView.isHidden = true
-                        self.calendarViewHeightContraint.constant = 0
-                        self.view.layoutIfNeeded()
-                    })
-                }
+    @IBAction func onBtnCollapseCallender() {
+        if self.calendarViewHeightContraint.constant == 0 {
+            collapseCalendarButton.setImage(UIImage(named:"icon_minus"), for: UIControlState.normal)
+            UIView.animate(withDuration: 0.5, animations: {
+                self.weekDaysStackView.isHidden = false
+                self.calendarViewHeightContraint.constant = 200
+                self.view.layoutIfNeeded()
+            })
+        } else {
+            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
+            UIView.animate(withDuration: 0.5, animations: {
+                self.weekDaysStackView.isHidden = true
+                self.calendarViewHeightContraint.constant = 0
+                self.view.layoutIfNeeded()
+            })
+        }
     }
     
     @IBAction func deleteRecordButtonClicked(_ sender: UIButton) {
@@ -216,7 +209,7 @@ class VoiceTableViewController: UIViewController {
             
             let activityViewController = UIActivityViewController(activityItems: [transcript], applicationActivities: nil)
             activityViewController.excludedActivityTypes = [UIActivityType.airDrop]
-            self.navigationController!.present(activityViewController, animated: true) {}
+            self.present(activityViewController, animated: true) {}
         }
     }
     
@@ -627,7 +620,7 @@ extension VoiceTableViewController: UITableViewDataSource {
         }
         
         cell.titleLabel.text = voiceRecord.title
-        //cell.transcriptionTextField.text = voiceRecord.transcript
+        cell.transcriptionTextField.text = voiceRecord.transcript
         
         let  minutes = voiceRecord.length.intValue / 60
         let  seconds = voiceRecord.length.intValue % 60
@@ -665,9 +658,6 @@ extension VoiceTableViewController: UITableViewDataSource {
 //        cell.tagView.reloadData()
         return cell
     }
-    
-    
-
 }
 
 // MARK: UITableViewDelegate
@@ -695,40 +685,37 @@ extension VoiceTableViewController: UITableViewDelegate {
 extension VoiceTableViewController: UISearchBarDelegate {
     
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        
-        self.view .addGestureRecognizer(taptoHidekeyBoard!)
-        
-        if self.calendarViewHeightContraint.constant > 0 {
-            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
-            UIView.animate(withDuration: 0.5, animations: {
-                self.weekDaysStackView.isHidden = true
-                self.calendarViewHeightContraint.constant = 0
-                self.view.layoutIfNeeded()
-            })
-        }
+//        self.view .addGestureRecognizer(taptoHidekeyBoard!)
+//        if self.calendarViewHeightContraint.constant > 0 {
+//            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
+//            UIView.animate(withDuration: 0.5, animations: {
+//                self.weekDaysStackView.isHidden = true
+//                self.calendarViewHeightContraint.constant = 0
+//                self.view.layoutIfNeeded()
+//            })
+//        }
     }
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-        
-        searchBar.resignFirstResponder();
-        self.view.removeGestureRecognizer(taptoHidekeyBoard!)
-        if self.calendarViewHeightContraint.constant == 0 {
-            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
-            UIView.animate(withDuration: 0.5, animations: {
-                self.weekDaysStackView.isHidden = true
-                self.calendarViewHeightContraint.constant = 0
-                self.view.layoutIfNeeded()
-            })
-        }
+//        searchBar.resignFirstResponder()
+//        self.view.removeGestureRecognizer(taptoHidekeyBoard!)
+//        if self.calendarViewHeightContraint.constant == 0 {
+//            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
+//            UIView.animate(withDuration: 0.5, animations: {
+//                self.weekDaysStackView.isHidden = true
+//                self.calendarViewHeightContraint.constant = 0
+//                self.view.layoutIfNeeded()
+//            })
+//        }
     }
     
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.resignFirstResponder();
-    }
+//    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+//        searchBar.resignFirstResponder();
+//    }
     
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.resignFirstResponder();
-    }
+//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+//        searchBar.resignFirstResponder();
+//    }
 }
 
 extension VoiceTableViewController: UISearchControllerDelegate {
