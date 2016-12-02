@@ -20,6 +20,7 @@ extension UIColor {
     }
 }
 
+
 extension UIViewController {
     func addGradientFooter() {
         let view = UIView(frame: CGRect(x: 0, y: self.view.frame.height - 90, width: self.view.frame.width, height: 90))
@@ -28,5 +29,25 @@ extension UIViewController {
         view.layer.addSublayer(gradient)
         view.alpha = 0.4
         self.view.addSubview(view)
+    }
+}
+
+extension Date {
+    func lastDayOfMonth() -> Date {
+        let calendar = Calendar.current
+        let dayRange = calendar.range(of: .day, in: .month, for: self)
+        let dayCount = dayRange!.count
+        var comp = calendar.dateComponents([.year, .month, .day], from: self)
+        
+        comp.day = dayCount
+        
+        return calendar.date(from: comp)!
+    }
+    
+    func firstDayOfMonth() -> Date {
+        let calendar: Calendar = Calendar.current
+        var components: DateComponents = calendar.dateComponents([.year, .month, .day], from: self)
+        components.setValue(1, for: .day)
+        return calendar.date(from: components)!
     }
 }
