@@ -135,7 +135,7 @@
                                                                     <nil key="highlightedColor"/>
                                                                 </label>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EYU-mk-zTa">
-                                                                    <rect key="frame" x="10" y="51" width="42" height="18"/>
+                                                                    <rect key="frame" x="10" y="50" width="42" height="18"/>
                                                                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                     <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                     <nil key="highlightedColor"/>
@@ -147,13 +147,13 @@
                                                                     <nil key="highlightedColor"/>
                                                                 </label>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="30" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GkA-AJ-Eu5">
-                                                                    <rect key="frame" x="272" y="26" width="45" height="43"/>
-                                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="36"/>
+                                                                    <rect key="frame" x="273" y="26" width="44" height="42"/>
+                                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="35"/>
                                                                     <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                                     <nil key="highlightedColor"/>
                                                                 </label>
                                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RjX-9A-XeY">
-                                                                    <rect key="frame" x="0.0" y="194" width="327" height="22"/>
+                                                                    <rect key="frame" x="0.0" y="193" width="327" height="22"/>
                                                                     <subviews>
                                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eYE-Jw-43T">
                                                                             <rect key="frame" x="10" y="0.0" width="19" height="22"/>
@@ -163,7 +163,7 @@
                                                                             </constraints>
                                                                             <state key="normal" image="delete"/>
                                                                             <connections>
-                                                                                <action selector="deleteRecordButtonClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="VeY-PT-xvL"/>
+                                                                                <action selector="deleteRecordButtonClicked:" destination="81K-IJ-uC2" eventType="touchUpInside" id="1ap-3r-Hb9"/>
                                                                             </connections>
                                                                         </button>
                                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="I7g-2g-A6S">
@@ -173,6 +173,9 @@
                                                                                 <constraint firstAttribute="height" constant="22" id="sfI-xI-o8u"/>
                                                                             </constraints>
                                                                             <state key="normal" image="play"/>
+                                                                            <connections>
+                                                                                <action selector="playVoiceActionWithSender:" destination="81K-IJ-uC2" eventType="touchUpInside" id="eVL-ia-eve"/>
+                                                                            </connections>
                                                                         </button>
                                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oEH-Q3-O1g">
                                                                             <rect key="frame" x="299" y="0.0" width="18" height="22"/>
@@ -182,7 +185,7 @@
                                                                             </constraints>
                                                                             <state key="normal" image="share"/>
                                                                             <connections>
-                                                                                <action selector="shareRecordButtonClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="jKh-ku-GBx"/>
+                                                                                <action selector="shareRecordButtonClicked:" destination="81K-IJ-uC2" eventType="touchUpInside" id="Eqi-4H-3Kg"/>
                                                                             </connections>
                                                                         </button>
                                                                     </subviews>
@@ -197,7 +200,7 @@
                                                                     </constraints>
                                                                 </view>
                                                                 <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="q7J-y7-gzi">
-                                                                    <rect key="frame" x="10" y="74" width="307" height="110"/>
+                                                                    <rect key="frame" x="10" y="73" width="307" height="110"/>
                                                                     <constraints>
                                                                         <constraint firstAttribute="height" constant="110" id="1lu-DK-41x"/>
                                                                     </constraints>
@@ -252,6 +255,7 @@
                                             <outlet property="dateLabel" destination="SWP-E2-mak" id="nvg-iO-WOh"/>
                                             <outlet property="dayLabel" destination="GkA-AJ-Eu5" id="UBW-h2-t0S"/>
                                             <outlet property="lengthLabel" destination="EYU-mk-zTa" id="WWU-El-Nbl"/>
+                                            <outlet property="playButton" destination="I7g-2g-A6S" id="Qd8-Pf-fya"/>
                                             <outlet property="titleLabel" destination="Yi2-ny-neM" id="geb-fX-Cgr"/>
                                             <outlet property="transcriptionTextField" destination="q7J-y7-gzi" id="mxy-vi-rfv"/>
                                         </connections>
@@ -667,10 +671,12 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="p5A-eb-UPt" firstAttribute="top" secondItem="tgy-Er-S2v" secondAttribute="top" id="FcU-TU-9p3"/>
-                            <constraint firstItem="p5A-eb-UPt" firstAttribute="leading" secondItem="tgy-Er-S2v" secondAttribute="leading" id="OIf-op-mDf"/>
-                            <constraint firstItem="ByZ-km-pAR" firstAttribute="top" secondItem="p5A-eb-UPt" secondAttribute="bottom" id="dBJ-Kf-bVa"/>
-                            <constraint firstAttribute="trailing" secondItem="p5A-eb-UPt" secondAttribute="trailing" id="uwU-0t-NLV"/>
+                            <constraint firstItem="ByZ-km-pAR" firstAttribute="top" secondItem="p5A-eb-UPt" secondAttribute="bottom" id="FlG-Cd-16M"/>
+                            <constraint firstAttribute="trailing" secondItem="p5A-eb-UPt" secondAttribute="trailing" id="TX0-BO-qXO"/>
+                            <constraint firstItem="p5A-eb-UPt" firstAttribute="top" secondItem="tgy-Er-S2v" secondAttribute="top" id="ayi-Ti-OLS"/>
+                            <constraint firstItem="p5A-eb-UPt" firstAttribute="height" secondItem="tgy-Er-S2v" secondAttribute="height" id="iXN-U1-YcV"/>
+                            <constraint firstItem="p5A-eb-UPt" firstAttribute="width" secondItem="tgy-Er-S2v" secondAttribute="width" id="jEi-G7-rTY"/>
+                            <constraint firstItem="p5A-eb-UPt" firstAttribute="leading" secondItem="tgy-Er-S2v" secondAttribute="leading" id="tQO-Sa-XRf"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="zNV-RQ-uWs"/>
@@ -708,9 +714,6 @@
                                     <userDefinedRuntimeAttribute type="number" keyPath="startAngle">
                                         <integer key="value" value="-90"/>
                                     </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="angle ">
-                                        <integer key="value" value="90"/>
-                                    </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="color" keyPath="trackColor">
                                         <color key="value" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                     </userDefinedRuntimeAttribute>
@@ -733,11 +736,11 @@
                                         <real key="value" value="0.20000000000000001"/>
                                     </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="boolean" keyPath="roundedCorners" value="NO"/>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="angle">
-                                        <real key="value" value="90"/>
-                                    </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="number" keyPath="gradientRotateSpeed">
                                         <real key="value" value="-1"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="angle">
+                                        <real key="value" value="90"/>
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </view>

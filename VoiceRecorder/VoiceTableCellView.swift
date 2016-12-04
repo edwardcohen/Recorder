@@ -17,15 +17,7 @@ class VoiceTableCellView: UITableViewCell {
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var dayLabel: UILabel!
     @IBOutlet weak var transcriptionTextField: UITextView!
-    
-//    @IBOutlet var tagView: UICollectionView!
-//    @IBOutlet weak var mapView: MKMapView!
-//    @IBOutlet weak var progressView: UIProgressView!
-//    @IBOutlet weak var playButton: UIButton!
-    
-    
-//    @IBOutlet weak var detailView: UIView!
-    
+    @IBOutlet weak var playButton: UIButton!
     
     var tags = [String]()
     
@@ -36,10 +28,52 @@ class VoiceTableCellView: UITableViewCell {
     var audioPlayer: AVAudioPlayer?
     
     var timer: Timer?
-
+    
     var session:AVAudioSession?
     
     var isPlaying = false
+    
+//    @IBOutlet var tagView: UICollectionView!
+//    @IBOutlet weak var mapView: MKMapView!
+//    @IBOutlet weak var progressView: UIProgressView!
+//    @IBOutlet weak var playButton: UIButton!
+    
+    
+//    @IBOutlet weak var detailView: UIView!
+    
+    var voiceRecord: Voice? {
+        didSet {
+            if let voiceRecord = voiceRecord {
+                
+                titleLabel.text = voiceRecord.title
+                transcriptionTextField.text = voiceRecord.transcript
+                
+                let  minutes = voiceRecord.length.intValue / 60
+                let  seconds = voiceRecord.length.intValue % 60
+                lengthLabel.text = String(format:"%02i:%02i", minutes, seconds)
+                
+                let date = voiceRecord.date
+                
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "MMM"
+                
+                var datestring = dateFormatter.string(from: date as Date)
+                dateLabel.text = String(datestring.uppercased())
+                
+                dateFormatter.dateFormat = "dd"
+                datestring = dateFormatter.string(from: date as Date)
+                dayLabel.text = String(datestring)
+                
+                tags = voiceRecord.tags!
+                
+                let annotation = MKPointAnnotation()
+                annotation.coordinate = voiceRecord.location.coordinate
+                
+                voiceFileURL = voiceRecord.audio
+                
+            }
+        }
+    }
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -57,11 +91,11 @@ class VoiceTableCellView: UITableViewCell {
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        if selected {
-            initAudioPlayer()
-        } else {
-            stopAudioPlayer()
-        }
+//        if selected {
+//            initAudioPlayer()
+//        } else {
+//            stopAudioPlayer()
+//        }
     }
     
     func initAudioPlayer() {
@@ -79,10 +113,10 @@ class VoiceTableCellView: UITableViewCell {
             if fileManager.fileExists(atPath: soundFileURL.path) {
                 print("File Avaliable")
                 do {
-                    audioPlayer = nil
+                 //   audioPlayer = nil
                     try audioPlayer = AVAudioPlayer(contentsOf: soundFileURL, fileTypeHint: AVFileTypeAppleM4A)
                     audioPlayer!.prepareToPlay()
-                    audioPlayer!.volume = 0.5
+                    //audioPlayer!.volume = 0.5
                 } catch {
                     print("error initializing AVAudioPlayer: \(error)")
                 }
@@ -102,21 +136,57 @@ class VoiceTableCellView: UITableViewCell {
         timer?.invalidate()
 //        progressView.progress = 0
         isPlaying = false
-//        playButton.setBackgroundImage(UIImage(named: "play.png"), forState: .Normal)
+        playButton.setBackgroundImage(#imageLiteral(resourceName: "play"), for: .normal)
+    }
+    
+    @IBAction func deleteRecordButtonClicked(_ sender: UIButton) {
+        
+        let deleteAlert = UIAlertController(title: "Delete Record", message: "Are you sure you want to delete this record?", preferredStyle: .alert)
+        deleteAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        
+        deleteAlert.addAction(UIAlertAction(title: "Yes", style: .default, handler: {
+            [unowned self] action in
+            
+            let managedContext = (UIApplication.shared.delegate as! AppDelegate).managedObjectContext
+            if let voiceRecord = self.voiceRecord {
+                managedContext.delete(voiceRecord)
+            }
+            //self.voiceRecords.remove(at: selectedCellIndexPath.row)
+            
+            do {
+                try managedContext.save()
+            } catch let error as NSError {
+                print("Error While Deleting Note: \(error.userInfo)")
+            }
+        }))
+        
+        UIApplication.shared.keyWindow?.rootViewController?.present(deleteAlert, animated: true, completion: nil)
+        
+    }
+    
+    
+    @IBAction func shareRecordButtonClicked(_ sender: UIButton) {
+        
+        guard let voiceRecord = voiceRecord else {return}
+        
+        if let transcript = voiceRecord.transcript {
+            
+            let activityViewController = UIActivityViewController(activityItems: [transcript], applicationActivities: nil)
+            activityViewController.excludedActivityTypes = [UIActivityType.airDrop]
+             UIApplication.shared.keyWindow?.rootViewController?.present(activityViewController, animated: true, completion: nil)
+        }
     }
     
     @IBAction func playVoiceAction(sender: AnyObject) {
         if let player = audioPlayer {
             player.delegate = self
-            if isPlaying {
+            if player.isPlaying {
                 player.pause()
-//                playButton.setBackgroundImage(UIImage(named: "play.png"), forState: .Normal)
-                isPlaying = false
+                playButton.setBackgroundImage(#imageLiteral(resourceName: "play"), for: .normal)
             } else {
                 player.play()
                 startTimer()
-                isPlaying = true
-//                playButton.setBackgroundImage(UIImage(named: "pause.png"), forState: .Normal)
+                playButton.setBackgroundImage(#imageLiteral(resourceName: "pause"), for: .normal)
             }
         }
         
@@ -140,27 +210,6 @@ class VoiceTableCellView: UITableViewCell {
 //            let progress = Float(audioPlayer!.currentTime/audioPlayer!.duration)
 //            progressView.progress = progress > 0.98 ? 1: progress
         }
-    }
-}
-
-extension VoiceTableCellView: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return tags.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! TagCellView
-        self.configureCell(cell: tagCell, forIndexPath: indexPath as IndexPath as NSIndexPath)
-        return tagCell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        self.configureCell(cell: self.sizingCell!, forIndexPath: indexPath as NSIndexPath)
-        return self.sizingCell!.systemLayoutSizeFitting(UILayoutFittingCompressedSize)
-    }
-    
-    func configureCell(cell: TagCellView, forIndexPath indexPath: NSIndexPath) {
-        cell.tagLabel.text = tags[indexPath.item]
     }
 }
 

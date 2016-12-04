@@ -69,13 +69,23 @@ class VoiceTableViewController: UIViewController {
         searchController.searchBar.frame.size = searchBarView.frame.size
         searchBarView.addSubview(searchController.searchBar)
         searchController.searchBar.searchBarStyle = .minimal
-        searchController.searchBar.isHidden = true
+        //searchController.searchBar.isHidden = true
+        //self.searchController.hidesNavigationBarDuringPresentation = false
+        self.definesPresentationContext = false
         
         let textFieldInsideSearchBar = searchController.searchBar.value(forKey: "searchField") as? UITextField
         textFieldInsideSearchBar?.textColor = UIColor.white
         taptoHidekeyBoard = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         taptoHidekeyBoard?.numberOfTapsRequired = 1
+        
+        //Magic
+//        scrollView?.addConstraint(NSLayoutConstraint(item: self.view, attribute: .right, relatedBy: .equal, toItem: scrollView, attribute: .right, multiplier: 1.0, constant: 0))
+        //
+        
+       // self.automaticallyAdjustsScrollViewInsets = false
+        
     }
+    
     
     func handleTap(sender: UITapGestureRecognizer? = nil) {
         searchController.searchBar.resignFirstResponder()
@@ -170,46 +180,6 @@ class VoiceTableViewController: UIViewController {
                 self.calendarViewHeightContraint.constant = 0
                 self.view.layoutIfNeeded()
             })
-        }
-    }
-    
-    @IBAction func deleteRecordButtonClicked(_ sender: UIButton) {
-        
-        let deleteAlert = UIAlertController(title: "Delete Record", message: "Are you sure you want to delete this record?", preferredStyle: .alert)
-        deleteAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        
-        deleteAlert.addAction(UIAlertAction(title: "Yes", style: .default, handler: {
-            [unowned self] action in
-            
-            let managedContext = (UIApplication.shared.delegate as! AppDelegate).managedObjectContext
-            guard let selectedCellIndexPath = self.selectedCellIndexPath else {return}
-            let voiceRecord = self.voiceRecords[selectedCellIndexPath.row]
-            self.selectedCellIndexPath = nil
-            managedContext.delete(voiceRecord)
-            self.voiceRecords.remove(at: selectedCellIndexPath.row)
-            
-            do {
-                try managedContext.save()
-            } catch let error as NSError {
-                print("Error While Deleting Note: \(error.userInfo)")
-            }
-        }))
-        
-        present(deleteAlert, animated: true, completion: nil)
-
-    }
-    
-    
-    @IBAction func shareRecordButtonClicked(_ sender: UIButton) {
-        
-        guard let selectedCellIndexPath = selectedCellIndexPath else {return}
-        let voiceRecord = voiceRecords[selectedCellIndexPath.row]
-            
-        if let transcript = voiceRecord.transcript {
-            
-            let activityViewController = UIActivityViewController(activityItems: [transcript], applicationActivities: nil)
-            activityViewController.excludedActivityTypes = [UIActivityType.airDrop]
-            self.present(activityViewController, animated: true) {}
         }
     }
     
@@ -450,6 +420,7 @@ extension VoiceTableViewController: NSFetchedResultsControllerDelegate {
         case .delete:
             if let _indexPath = indexPath {
                 tableView.deleteRows(at: [_indexPath], with: .fade)
+                self.voiceRecords.remove(at: _indexPath.row)
                 calendarView.reloadData()
             }
         case .update:
@@ -492,8 +463,7 @@ extension VoiceTableViewController: NSFetchedResultsControllerDelegate {
 extension VoiceTableViewController: JTAppleCalendarViewDataSource {
     
     func configureCalendar(_ calendar: JTAppleCalendarView) -> ConfigurationParameters {
-        
-        let startDate = formatter.date(from: "Jan 01, 2016")!
+        let startDate = Date().firstDayOfYear()
         let endDate = Date()
         let parameters = ConfigurationParameters(startDate: startDate,
                                                  endDate: endDate,
@@ -587,11 +557,6 @@ extension VoiceTableViewController: JTAppleCalendarViewDelegate {
     func calendar(_ calendar: JTAppleCalendarView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
         setupViewsOfCalendar(startDate: visibleDates.monthDates.first!, endDate: visibleDates.monthDates.last!)
     }
-
-//    func calendar(calendar: JTAppleCalendarView, didScrollToDateSegmentStartingWithdate startDate: Date, endingWithDate endDate: Date) {
-//        setupViewsOfCalendar(startDate: startDate, endDate: endDate)
-//    }
-
 }
 
 
@@ -619,35 +584,7 @@ extension VoiceTableViewController: UITableViewDataSource {
             voiceRecord = voiceRecords[indexPath.row]
         }
         
-        cell.titleLabel.text = voiceRecord.title
-        cell.transcriptionTextField.text = voiceRecord.transcript
-        
-        let  minutes = voiceRecord.length.intValue / 60
-        let  seconds = voiceRecord.length.intValue % 60
-        cell.lengthLabel.text = String(format:"%02i:%02i", minutes, seconds)
-        
-        //String(voiceRecord.objectForKey("length") as! Int)
-        
-        let date = voiceRecord.date //voiceRecord.objectForKey("date") as! NSDate
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMM"
-
-        var datestring = dateFormatter.string(from: date as Date)
-        cell.dateLabel.text = String(datestring)
-        
-        dateFormatter.dateFormat = "dd"
-        datestring = dateFormatter.string(from: date as Date)
-        cell.dayLabel.text = String(datestring)
-        
-        cell.tags = voiceRecord.tags! //voiceRecord.objectForKey("tags") as! [String]
-
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = voiceRecord.location.coordinate
-//        cell.mapView.showAnnotations([annotation], animated: true)
-//        cell.mapView.selectAnnotation(annotation, animated: true)
-
-        cell.voiceFileURL = voiceRecord.audio
+        cell.voiceRecord = voiceRecord
         
         cell.backgroundColor = UIColor.clear
         
@@ -671,10 +608,17 @@ extension VoiceTableViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        let cellIdentifier = "VoiceTableCell"
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! VoiceTableCellView
+        
         if selectedCellIndexPath == indexPath {
             selectedCellIndexPath = nil
+            cell.stopAudioPlayer()
+            
         } else {
             selectedCellIndexPath = indexPath
+            cell.initAudioPlayer()
         }
         
         self.tableView.reloadData()
@@ -685,37 +629,37 @@ extension VoiceTableViewController: UITableViewDelegate {
 extension VoiceTableViewController: UISearchBarDelegate {
     
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-//        self.view .addGestureRecognizer(taptoHidekeyBoard!)
-//        if self.calendarViewHeightContraint.constant > 0 {
-//            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
-//            UIView.animate(withDuration: 0.5, animations: {
-//                self.weekDaysStackView.isHidden = true
-//                self.calendarViewHeightContraint.constant = 0
-//                self.view.layoutIfNeeded()
-//            })
-//        }
+        self.view .addGestureRecognizer(taptoHidekeyBoard!)
+        if self.calendarViewHeightContraint.constant > 0 {
+            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
+            UIView.animate(withDuration: 0.5, animations: {
+                self.weekDaysStackView.isHidden = true
+                self.calendarViewHeightContraint.constant = 0
+                self.view.layoutIfNeeded()
+            })
+        }
     }
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-//        searchBar.resignFirstResponder()
-//        self.view.removeGestureRecognizer(taptoHidekeyBoard!)
-//        if self.calendarViewHeightContraint.constant == 0 {
-//            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
-//            UIView.animate(withDuration: 0.5, animations: {
-//                self.weekDaysStackView.isHidden = true
-//                self.calendarViewHeightContraint.constant = 0
-//                self.view.layoutIfNeeded()
-//            })
-//        }
+        searchBar.resignFirstResponder()
+        self.view.removeGestureRecognizer(taptoHidekeyBoard!)
+        if self.calendarViewHeightContraint.constant == 0 {
+            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
+            UIView.animate(withDuration: 0.5, animations: {
+                self.weekDaysStackView.isHidden = true
+                self.calendarViewHeightContraint.constant = 0
+                self.view.layoutIfNeeded()
+            })
+        }
     }
     
-//    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-//        searchBar.resignFirstResponder();
-//    }
+   func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder();
+    }
     
-//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-//        searchBar.resignFirstResponder();
-//    }
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder();
+    }
 }
 
 extension VoiceTableViewController: UISearchControllerDelegate {
