@@ -103,6 +103,7 @@ class VoiceTableCellView: UITableViewCell {
         try! session!.setCategory(AVAudioSessionCategoryPlayback)
         try! session!.setActive(true)
         
+        
         if let fileURL = voiceFileURL {
             let audioFileName = fileURL.lastPathComponent
             let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -116,7 +117,7 @@ class VoiceTableCellView: UITableViewCell {
                  //   audioPlayer = nil
                     try audioPlayer = AVAudioPlayer(contentsOf: soundFileURL, fileTypeHint: AVFileTypeAppleM4A)
                     audioPlayer!.prepareToPlay()
-                    //audioPlayer!.volume = 0.5
+                    audioPlayer!.volume = 1.0
                 } catch {
                     print("error initializing AVAudioPlayer: \(error)")
                 }
@@ -139,56 +140,19 @@ class VoiceTableCellView: UITableViewCell {
         playButton.setBackgroundImage(#imageLiteral(resourceName: "play"), for: .normal)
     }
     
-    @IBAction func deleteRecordButtonClicked(_ sender: UIButton) {
-        
-        let deleteAlert = UIAlertController(title: "Delete Record", message: "Are you sure you want to delete this record?", preferredStyle: .alert)
-        deleteAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        
-        deleteAlert.addAction(UIAlertAction(title: "Yes", style: .default, handler: {
-            [unowned self] action in
-            
-            let managedContext = (UIApplication.shared.delegate as! AppDelegate).managedObjectContext
-            if let voiceRecord = self.voiceRecord {
-                managedContext.delete(voiceRecord)
-            }
-            //self.voiceRecords.remove(at: selectedCellIndexPath.row)
-            
-            do {
-                try managedContext.save()
-            } catch let error as NSError {
-                print("Error While Deleting Note: \(error.userInfo)")
-            }
-        }))
-        
-        UIApplication.shared.keyWindow?.rootViewController?.present(deleteAlert, animated: true, completion: nil)
-        
-    }
-    
-    
-    @IBAction func shareRecordButtonClicked(_ sender: UIButton) {
-        
-        guard let voiceRecord = voiceRecord else {return}
-        
-        if let transcript = voiceRecord.transcript {
-            
-            let activityViewController = UIActivityViewController(activityItems: [transcript], applicationActivities: nil)
-            activityViewController.excludedActivityTypes = [UIActivityType.airDrop]
-             UIApplication.shared.keyWindow?.rootViewController?.present(activityViewController, animated: true, completion: nil)
-        }
-    }
     
     @IBAction func playVoiceAction(sender: AnyObject) {
-        if let player = audioPlayer {
-            player.delegate = self
-            if player.isPlaying {
-                player.pause()
-                playButton.setBackgroundImage(#imageLiteral(resourceName: "play"), for: .normal)
-            } else {
-                player.play()
-                startTimer()
-                playButton.setBackgroundImage(#imageLiteral(resourceName: "pause"), for: .normal)
-            }
-        }
+//        if let player = audioPlayer {
+//            player.delegate = self
+//            if player.isPlaying {
+//                player.pause()
+//                playButton.setBackgroundImage(#imageLiteral(resourceName: "play"), for: .normal)
+//            } else {
+//                player.play()
+//                startTimer()
+//                playButton.setBackgroundImage(#imageLiteral(resourceName: "pause"), for: .normal)
+//            }
+//        }
         
     }
 
@@ -213,12 +177,12 @@ class VoiceTableCellView: UITableViewCell {
     }
 }
 
-extension VoiceTableCellView:AVAudioPlayerDelegate {
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        stopAudioPlayer()
-    }
-    
-    func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
-        stopTimer()
-    }
-}
+//extension VoiceTableCellView: AVAudioPlayerDelegate {
+//    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+//        stopAudioPlayer()
+//    }
+//    
+//    func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
+//        stopTimer()
+//    }
+//}
