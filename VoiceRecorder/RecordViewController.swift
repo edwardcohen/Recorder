@@ -69,7 +69,7 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
         transText.delegate = self
         transText.isUserInteractionEnabled = false
 
-        speechRecognizer!.delegate = self  //3
+        speechRecognizer!.delegate = self
         SFSpeechRecognizer.requestAuthorization { (authStatus) in
             switch authStatus {
             case .authorized: self.isSpeechEnabled = true
