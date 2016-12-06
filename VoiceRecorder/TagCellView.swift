@@ -10,12 +10,4 @@ import UIKit
 
 class TagCellView: UICollectionViewCell {
     @IBOutlet var tagLabel: UILabel!
-    
-    @IBOutlet weak var tagLabelMaxWidthConstraint: NSLayoutConstraint!
-    
-    override func awakeFromNib() {
-        self.layer.cornerRadius = 4
-        
-        self.tagLabelMaxWidthConstraint.constant = UIScreen.main.bounds.width - 8 * 2 - 8 * 2
-    }
 }

@@ -18,14 +18,14 @@ enum RecordState: Int {
 }
 
 class Gradient {
-    let colorTop =  UIColor.lightGray.cgColor
+    let colorTop =  UIColor.clear.cgColor
     let colorBottom = UIColor.black.cgColor
     let gl: CAGradientLayer
     
     init() {
         gl = CAGradientLayer()
         gl.colors = [colorTop, colorBottom]
-        gl.locations = [ 0, 0.2]
+        gl.locations = [0, 0.2]
     }
 }
 

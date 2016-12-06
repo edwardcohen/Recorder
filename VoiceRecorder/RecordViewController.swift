@@ -16,22 +16,22 @@ import KDCircularProgress
 //import SwiftSiriWaveformView
 
 class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetchedResultsControllerDelegate,UIViewControllerTransitioningDelegate, AVAudioRecorderDelegate, CLLocationManagerDelegate  {
+   
     @IBOutlet var recordButton: UIButton!
     @IBOutlet var transTextView: UITextView!
     @IBOutlet var viewCenterRecord: UIView!
-//    @IBOutlet var timerLabel: UILabel!
+    @IBOutlet var timerLabel: UILabel!
     @IBOutlet var doneButton: UIButton!
     @IBOutlet var titleText: UITextField!
-    @IBOutlet var transText: UITextField!
     @IBOutlet var deleteButton: UIButton!
-//    @IBOutlet var recordProgress: UIProgressView!
     @IBOutlet var spinner: UIActivityIndicatorView!
-//    @IBOutlet var tagView: UICollectionView!
+    @IBOutlet var tagView: UICollectionView!
 //    @IBOutlet var audioWaveformView: SwiftSiriWaveformView!
     @IBOutlet weak var locationButton: UIButton!
     @IBOutlet weak var listButton: UIButton!
     @IBOutlet var vCircularProgress: KDCircularProgress!
     
+    let recordLenght: Double = 90
     var recordingSession: AVAudioSession!
     var audioRecorder: AVAudioRecorder!
     var locationManager: CLLocationManager!
@@ -41,15 +41,16 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
     var voiceRecords: [Voice] = []
     var isSpeechEnabled = false
     var isconverstionActive = false
-    var tags = ["+"]
+    var tags = ["+", "How was your day?", "Tell me a nice thing you did.", "Tell me a story.", "What did you do today?"]
     var marks: [Double] = []
     var scrollView: UIScrollView?
     
-    ///// Speech Recognizor
+    // Speech Recognizor
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale.init(identifier: "en-US")) 
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
     private let audioEngine = AVAudioEngine()
+    
     var sizingCell: TagCellView?
     var recordState = RecordState.None
     var recordingTimer: Timer!
@@ -61,15 +62,16 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
         view.backgroundColor = UIColor.recordBlack
         viewCenterRecord.layer.cornerRadius = 27.5
         
+        tagView.delegate = self
+        tagView.dataSource = self
+    
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM dd, yyyy"
         let now = dateFormatter.string(from: Date())
         titleText.text = now
-        titleText.delegate = self
-        transText.delegate = self
-        transText.isUserInteractionEnabled = false
-
-        speechRecognizer!.delegate = self  //3
+        transTextView.text = "Transcript goes here..."
+        
+        speechRecognizer!.delegate = self
         SFSpeechRecognizer.requestAuthorization { (authStatus) in
             switch authStatus {
             case .authorized: self.isSpeechEnabled = true
@@ -83,30 +85,18 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
         displayLink = CADisplayLink(target: self, selector: #selector(updateMeters))
         displayLink.add(to: RunLoop.current, forMode: RunLoopMode.commonModes)
         
-        spinner.hidesWhenStopped = true
-        spinner.center = view.center
-        view.addSubview(spinner)
-    
-        //backgroundImage.isUserInteractionEnabled = true
-
+        timerLabel.isHidden = true
+        
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPressed))
         longPress.minimumPressDuration = 0.2
-        let singleTap = UITapGestureRecognizer(target: self, action: #selector(singleTapped))
-        singleTap.numberOfTapsRequired = 1
-        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(doubleTapped))
-        doubleTap.numberOfTapsRequired = 2
-        recordButton.addGestureRecognizer(longPress)
-        recordButton.addGestureRecognizer(singleTap)
-        recordButton.addGestureRecognizer(doubleTap)
-        
-        let swipeLeft  = UISwipeGestureRecognizer(target:self ,action: #selector (showCalender) )
-        swipeLeft.direction = UISwipeGestureRecognizerDirection.left
-        self.view.addGestureRecognizer(swipeLeft)
-//        let swipeRight  = UISwipeGestureRecognizer(target:self ,action: #selector (fetchAllRecords) )
-//        swipeRight.direction = UISwipeGestureRecognizerDirection.Right
+//        let singleTap = UITapGestureRecognizer(target: self, action: #selector(singleTapped))
+//        singleTap.numberOfTapsRequired = 1
+//        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(doubleTapped))
+//        doubleTap.numberOfTapsRequired = 2
+          recordButton.addGestureRecognizer(longPress)
+//        recordButton.addGestureRecognizer(singleTap)
+//        recordButton.addGestureRecognizer(doubleTap)
 //        
-//        self.view.addGestureRecognizer(swipeRight)
-        
         self.locationManager = CLLocationManager()
         self.locationManager.delegate = self
         
@@ -116,8 +106,6 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
         recordingSession = AVAudioSession.sharedInstance()
         do {
             try recordingSession.setCategory(AVAudioSessionCategoryRecord)
-//            try recordingSession.setActive(true)
-//           try recordingSession.setActive(true, withOptions:AVAudioSessionSetActiveOptions.NotifyOthersOnDeactivation)
             try recordingSession.setMode(AVAudioSessionModeMeasurement)
             try recordingSession.setActive(true, with:AVAudioSessionSetActiveOptions.notifyOthersOnDeactivation)
             recordingSession.requestRecordPermission() { [unowned self] (allowed: Bool) -> Void in
@@ -130,13 +118,6 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
         } catch {
             showErrorMessage(message: "Failed to configure AVAudioSession!")
         }
-//        tagView.dataSource = self
-//        tagView.delegate = self
-        
-        let cellNib = UINib(nibName: "TagCellView", bundle: nil)
-//        self.tagView.registerNib(cellNib, forCellWithReuseIdentifier: "TagCell")
-//        self.tagView.backgroundColor = UIColor.clearColor()
-        self.sizingCell = (cellNib.instantiate(withOwner: nil, options: nil) as NSArray).firstObject as! TagCellView?
     }
     
     func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -176,6 +157,7 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
                 let now = dateFormatter.string(from: Date())
                 self.transTextView.text = "Transcript goes here..."
                 self.titleText.text = now
+                self.timerLabel.isHidden = true
                 self.updateUI()
             }
         }))
@@ -240,6 +222,7 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
         if recordState == RecordState.None {
             startRecording()
             recordState = RecordState.Continuous
+            SpeechTotextConversion()
             updateUI()
         }
     }
@@ -253,11 +236,20 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
             audioRecorder.pause()
             recordingTimer.invalidate()
             newState = RecordState.Pause
+            
+            if audioEngine.isRunning {
+                audioEngine.stop()
+                recognitionRequest?.endAudio()
+                isconverstionActive = false
+            }
+            self.displayLink.isPaused = true
+            
         case RecordState.Pause:
             marks.append(timerCount)
             audioRecorder.record()
             recordingTimer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(timerUpdate), userInfo: nil, repeats: true)
             timerUpdate()
+             SpeechTotextConversion()
             newState = RecordState.Continuous
         default: break
         }
@@ -280,19 +272,28 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
             viewCenterRecord.backgroundColor = UIColor.white
             vCircularProgress.angle = 0
             showedBasicButton(isHiddeMain: false, isHidde: true)
-            view.backgroundColor = UIColor.recordBlack
+            UIView.animate(withDuration: 0.6, delay: 0.0, options:[.repeat, .autoreverse], animations: {
+               self.view.backgroundColor = UIColor.recordBlack
+            }, completion:nil)
+        
         case RecordState.OneTime, RecordState.Continuous:
             viewCenterRecord.backgroundColor = UIColor(red: 0xFE/255, green: 0x00/255, blue: 0x00/255, alpha: 1.0)
-            view.backgroundColor = UIColor.recordRed
+            UIView.animate(withDuration: 0.6, delay: 0.0, options:[], animations: {
+                self.view.backgroundColor = UIColor.recordRed
+            }, completion:nil)
             showedBasicButton(isHiddeMain: true, isHidde: true)
         case RecordState.Done:
             viewCenterRecord.backgroundColor = UIColor.white
-            view.backgroundColor = UIColor.recordBlack
+            UIView.animate(withDuration: 0.6, delay: 0.0, options:[], animations: {
+                self.view.backgroundColor = UIColor.recordBlack
+            }, completion:nil)
             vCircularProgress.angle = 0
             showedBasicButton(isHiddeMain: true, isHidde: false)
         case RecordState.Pause:
             viewCenterRecord.backgroundColor = UIColor.white
-            view.backgroundColor = UIColor.recordBlack
+            UIView.animate(withDuration: 0.6, delay: 0.0, options:[], animations: {
+                self.view.backgroundColor = UIColor.recordBlack
+            }, completion:nil)
             showedBasicButton(isHiddeMain: true, isHidde: false)
         }
     }
@@ -306,6 +307,8 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
     func startRecording() {
         let filename = NSUUID().uuidString + ".m4a"
         audioFileURL = getDocumentsDirectoryURL().appendingPathComponent(filename)
+        timerLabel.isHidden = false
+        vCircularProgress.alpha = 0.33
         let settings = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
             AVSampleRateKey: 12000.0,
@@ -315,7 +318,6 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
         
         do {
             try recordingSession.setCategory(AVAudioSessionCategoryRecord)
-//            try recordingSession.setActive(true)
             try recordingSession.setMode(AVAudioSessionModeMeasurement)
             try recordingSession.setActive(true, with:AVAudioSessionSetActiveOptions.notifyOthersOnDeactivation)
             audioRecorder = try AVAudioRecorder(url: audioFileURL!, settings: settings)
@@ -334,19 +336,14 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
     func SpeechTotextConversion() {
         guard !audioEngine.isRunning else { return }
         
+        if recordState == RecordState.Pause {
+            return
+        }
+
         if let recognitionTask = recognitionTask {
             recognitionTask.cancel()
             self.recognitionTask = nil
         }
-//        let audioSession = AVAudioSession.sharedInstance()
-//        do {
-//            try audioSession.setCategory(AVAudioSessionCategoryRecord)
-//            try audioSession.setMode(AVAudioSessionModeMeasurement)
-//            try audioSession.setActive(true, withOptions:AVAudioSessionSetActiveOptions.NotifyOthersOnDeactivation)
-//            
-//        } catch {
-//            print("audioSession properties weren't set because of an error.")
-//        }
 
         recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
         
@@ -375,10 +372,6 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
                 isFinal = (result?.isFinal)!
             }
             if error != nil || isFinal {
-//                NSRange bottom = NSMakeRange(textView.text.length -1, 1);
-//                [textView scrollRangeToVisible:bottom];
-//                let rangeBotm = NSMakeRange(self.transTextView.text.characters.count-1, 1)
-//                self.transTextView.scrollRangeToVisible(rangeBotm)
                 
                 self.audioEngine.stop()
                 inputNode.removeTap(onBus: 0)
@@ -419,6 +412,7 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
         showErrorMessage(message: "Recorder did finish recording unsuccessfully")
         audioRecorder = nil
         timerCount = 0
+        timerLabel.isHidden = true
     }
     
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
@@ -430,32 +424,36 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
     }
     
     func timerUpdate() {
-//        timerLabel.text = String(timerCount)
-//        recordProgress.setProgress(Float(timerCount)/60, animated: false)
-//        
-//        let milliseconds = timerCount * 100;
-//        let remaingMilliseconds = Int((milliseconds % 1000) / 10);
-//        let seconds = Int((milliseconds / 1000) % 60)
-        let progress = 360/60 * Double(timerCount)
-//        let angle = 360/60000 * Double(timerCount)
+         timerLabel.text = String(Int(timerCount))
+
+        let progress = 360/(60) * Double(timerCount)
         let angle = progress
 
-        
         print(timerCount)
         print(angle)
-        vCircularProgress.angle = angle
-//        let imageName = String(format: "progress%f",Float(timerCount))
+        vCircularProgress.angle = angle * 2
+        
+        if timerCount > 30 && timerCount < 31 {
+            vCircularProgress.alpha = 0.66
+            vCircularProgress.angle = 0
+        } else if timerCount > 60 && timerCount < 61 {
+            vCircularProgress.alpha = 1
+            vCircularProgress.angle = 0
+        }
         
         
-//        recordButton.setBackgroundImage(UIImage(named:imageName), forState:  UIControlState.Normal)
-        if (timerCount >= 60) {
+
+        if (timerCount >= recordLenght) {
+            
             audioRecorder.stop()
-//            audioRecorder = nil
+            UIView.animate(withDuration: 0.6, delay: 0.0, options:[], animations: {
+                self.view.backgroundColor = UIColor.recordBlack
+            }, completion:nil)
             vCircularProgress.angle = 360
             recordingTimer.invalidate()
-//            recordState = RecordState.Done
-//            updateUI()
+
         }
+        
         timerCount = timerCount + 0.01
     }
     
@@ -552,6 +550,7 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
 //            self.displayLink.invalidate()
             stopRecording()
             recordState = RecordState.Done
+            timerLabel.isHidden = true
             updateUI()
         }
 
@@ -686,24 +685,29 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
     }
 }
 
-extension RecordViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension RecordViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return tags.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! TagCellView
-        self.configureCell(cell: tagCell, forIndexPath: indexPath as NSIndexPath)
+        
+    let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! TagCellView
+        
+        tagCell.tagLabel.text = tags[indexPath.row]
+        
+   // self.configureCell(cell: tagCell, forIndexPath: indexPath)
+        
         return tagCell
     }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        self.configureCell(cell: self.sizingCell!, forIndexPath: indexPath as NSIndexPath)
-        return self.sizingCell!.systemLayoutSizeFitting(UILayoutFittingCompressedSize)
-    }
+//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+////        self.configureCell(cell: self.sizingCell!, forIndexPath: indexPath)
+////        return self.sizingCell!.systemLayoutSizeFitting(UILayoutFittingCompressedSize)
+//    }
     
-    func configureCell(cell: TagCellView, forIndexPath indexPath: NSIndexPath) {
+    func configureCell(cell: TagCellView, forIndexPath indexPath: IndexPath) {
         cell.tagLabel.text = tags[indexPath.item]
     }
     
@@ -726,20 +730,6 @@ extension RecordViewController: UICollectionViewDelegate, UICollectionViewDataSo
                 tagTextField?.autocapitalizationType = UITextAutocapitalizationType.sentences
             }
             present(alertController, animated: true, completion: nil)
-        }
-    }
-}
-
-// MARK : UITextFieldDelegate
-extension RecordViewController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        titleText.resignFirstResponder()
-        transText.resignFirstResponder()
-        return true
-    }
-    
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        if textField.text! == titleText.text {
         }
     }
 }
