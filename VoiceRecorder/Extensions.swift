@@ -50,4 +50,12 @@ extension Date {
         components.setValue(1, for: .day)
         return calendar.date(from: components)!
     }
+    
+    func firstDayOfYear() -> Date {
+        let calendar: Calendar = Calendar.current
+        var components: DateComponents = calendar.dateComponents([.year, .month, .day], from: self)
+        components.setValue(1, for: .day)
+        components.setValue(1, for: .month)
+        return calendar.date(from: components)!
+    }
 }

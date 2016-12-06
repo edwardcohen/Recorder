@@ -11,6 +11,7 @@ import CloudKit
 import UIKit
 import CoreData
 import MapKit
+import AVFoundation
 
 class VoiceTableViewController: UIViewController {
 
@@ -18,19 +19,14 @@ class VoiceTableViewController: UIViewController {
     var originRecords:[Voice] = []
     var filteredRecords: [Voice] = []
     var fetchResultController:NSFetchedResultsController<NSFetchRequestResult>!
-    var audioFileURL: URL?
     var selectedDate: Date?
     var selectedMonth : Int?
     var selectedYear : Int?
     var taptoHidekeyBoard : UITapGestureRecognizer?
     var scrollView: UIScrollView?
     var searchArray : NSMutableArray!
-    
-
-    var searchActive : Bool = false
-
-    @IBOutlet weak var buttonsView: UIView!
-  
+    var audioPlayer: AVAudioPlayer?
+    var session:AVAudioSession?
 
     let formatter = DateFormatter()
     
@@ -38,8 +34,8 @@ class VoiceTableViewController: UIViewController {
     var tags = [String]()
     var selectedCellIndexPath:IndexPath?
     
-    @IBOutlet weak var searchBarView: UIView!
-    let searchController = UISearchController(searchResultsController: nil)
+    @IBOutlet weak var buttonsView: UIView!
+    @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var monthButton: UIButton!
     @IBOutlet weak var collapseCalendarButton: UIButton!
     @IBOutlet weak var calendarView: JTAppleCalendarView!
@@ -49,36 +45,35 @@ class VoiceTableViewController: UIViewController {
     @IBOutlet weak var weekDaysStackView: UIStackView!
 
     override func viewDidLoad() {
+        
         super.viewDidLoad()
         self.view.setNeedsLayout()
         self.addGradientFooter()
         self.view.bringSubview(toFront: buttonsView)
         
         view.backgroundColor = UIColor.recordBlack
-        searchController.delegate = self
-        searchController.searchBar.delegate = self
-        searchController.searchResultsUpdater = self
-        searchController.searchBar.showsCancelButton = false
-        searchController.dimsBackgroundDuringPresentation = false
-        definesPresentationContext = true
+        searchBar.delegate = self
         
+        let textFieldInsideSearchBar = searchBar.value(forKey: "searchField") as? UITextField
+        textFieldInsideSearchBar?.textColor = UIColor.white
+    
         tableView.delegate = self
         tableView.dataSource = self
         
         view.backgroundColor = UIColor.recordBlack
-        searchController.searchBar.frame.size = searchBarView.frame.size
-        searchBarView.addSubview(searchController.searchBar)
-        searchController.searchBar.searchBarStyle = .minimal
-        searchController.searchBar.isHidden = true
         
-        let textFieldInsideSearchBar = searchController.searchBar.value(forKey: "searchField") as? UITextField
-        textFieldInsideSearchBar?.textColor = UIColor.white
         taptoHidekeyBoard = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         taptoHidekeyBoard?.numberOfTapsRequired = 1
+        
+        //Magic
+       // scrollView?.addConstraint(NSLayoutConstraint(item: self.view, attribute: .right, relatedBy: .equal, toItem: scrollView, attribute: .right, multiplier: 1.0, constant: 0))
+        //
+        
     }
     
+    
     func handleTap(sender: UITapGestureRecognizer? = nil) {
-        searchController.searchBar.resignFirstResponder()
+        searchBar.resignFirstResponder()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -146,7 +141,6 @@ class VoiceTableViewController: UIViewController {
         do {
             try self.fetchResultController.performFetch()
             voiceRecords = fetchResultController.fetchedObjects as! [Voice]
-            originRecords = voiceRecords
             self.tableView.reloadData()
         } catch {
             let fetchError = error as NSError
@@ -155,6 +149,8 @@ class VoiceTableViewController: UIViewController {
         
     }
 
+    //MARK: Actions
+    
     @IBAction func onBtnCollapseCallender() {
         if self.calendarViewHeightContraint.constant == 0 {
             collapseCalendarButton.setImage(UIImage(named:"icon_minus"), for: UIControlState.normal)
@@ -183,11 +179,26 @@ class VoiceTableViewController: UIViewController {
             
             let managedContext = (UIApplication.shared.delegate as! AppDelegate).managedObjectContext
             guard let selectedCellIndexPath = self.selectedCellIndexPath else {return}
-            let voiceRecord = self.voiceRecords[selectedCellIndexPath.row]
+            
+            
+             let voiceRecord = self.searchBar.text != "" ? self.filteredRecords[selectedCellIndexPath.row] : self.voiceRecords[selectedCellIndexPath.row]
+            
+            if self.searchBar.text != "" {
+                self.filteredRecords.remove(at: selectedCellIndexPath.row)
+                if let deleteIndex = self.voiceRecords.index(of: voiceRecord) {
+                    self.voiceRecords.remove(at: deleteIndex)
+                }
+            } else {
+                self.voiceRecords.remove(at: selectedCellIndexPath.row)
+                if let deleteIndex = self.filteredRecords.index(of: voiceRecord) {
+                    self.filteredRecords.remove(at: deleteIndex)
+                }
+            }
+            
+            self.tableView.deleteRows(at: [selectedCellIndexPath], with: UITableViewRowAnimation.fade)
             self.selectedCellIndexPath = nil
             managedContext.delete(voiceRecord)
-            self.voiceRecords.remove(at: selectedCellIndexPath.row)
-            
+        
             do {
                 try managedContext.save()
             } catch let error as NSError {
@@ -196,15 +207,16 @@ class VoiceTableViewController: UIViewController {
         }))
         
         present(deleteAlert, animated: true, completion: nil)
-
+        
     }
     
     
     @IBAction func shareRecordButtonClicked(_ sender: UIButton) {
         
         guard let selectedCellIndexPath = selectedCellIndexPath else {return}
-        let voiceRecord = voiceRecords[selectedCellIndexPath.row]
-            
+        let voiceRecord = searchBar.text != "" ? filteredRecords[selectedCellIndexPath.row] : voiceRecords[selectedCellIndexPath.row]
+        //let voiceRecord = voiceRecords[selectedCellIndexPath.row]
+        
         if let transcript = voiceRecord.transcript {
             
             let activityViewController = UIActivityViewController(activityItems: [transcript], applicationActivities: nil)
@@ -213,9 +225,37 @@ class VoiceTableViewController: UIViewController {
         }
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    @IBAction func playButtonPressed(_ sender: UIButton) {
+        
+        guard
+            let selectedCellIndexPath = selectedCellIndexPath,
+            let cell = tableView.cellForRow(at: selectedCellIndexPath) as? VoiceTableCellView,
+            let player = audioPlayer
+            else {return}
+        
+        player.delegate = self
+        if player.isPlaying {
+            player.pause()
+            cell.playButton.setBackgroundImage(#imageLiteral(resourceName: "play"), for: .normal)
+        } else {
+            player.play()
+            //startTimer()
+            cell.playButton.setBackgroundImage(#imageLiteral(resourceName: "pause"), for: .normal)
+        }
     }
+    
+    @IBAction func rewindForwardButtonPressed(_ sender: UIButton) {
+        rewindCurrentFile(timeInterval: 1)
+    }
+    
+    @IBAction func rewindBackwardButtonPressed(_ sender: UIButton) {
+        rewindCurrentFile(timeInterval: -1)
+    }
+    
+    
+//    override func viewDidAppear(_ animated: Bool) {
+//        super.viewDidAppear(animated)
+//    }
     
     func setupViewsOfCalendar(startDate: Date, endDate: Date) {
         let month = Calendar.current.component(Calendar.Component.month, from: endDate)
@@ -442,28 +482,30 @@ extension VoiceTableViewController: NSFetchedResultsControllerDelegate {
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
-        switch type {
-        case .insert:
-            if let _newIndexPath = newIndexPath {
-                tableView.insertRows(at: [_newIndexPath], with: .fade)
-            }
-        case .delete:
-            if let _indexPath = indexPath {
-                tableView.deleteRows(at: [_indexPath], with: .fade)
-                calendarView.reloadData()
-            }
-        case .update:
-            if let _indexPath = indexPath {
-                tableView.reloadRows(at: [_indexPath], with: .fade)
-            }
-            
-        default:
-            tableView.reloadData()
-        }
+//        switch type {
+//        case .insert:
+//            if let _newIndexPath = newIndexPath {
+//                tableView.insertRows(at: [_newIndexPath], with: .fade)
+//            }
+//        case .delete:
+//            if let _indexPath = indexPath {
+//                tableView.deleteRows(at: [_indexPath], with: .fade)
+//                
+//                //self.voiceRecords.remove(at: _indexPath.row)
+//               // calendarView.reloadData()
+//            }
+//        case .update:
+//            if let _indexPath = indexPath {
+//                tableView.reloadRows(at: [_indexPath], with: .fade)
+//            }
+//            
+//        default:
+//            tableView.reloadData()
+//        }
         
-        voiceRecords = controller.fetchedObjects as! [Voice]
-        originRecords = voiceRecords
-        self.getTagsFromRecords()
+//        voiceRecords = controller.fetchedObjects as! [Voice]
+//        originRecords = voiceRecords
+//        self.getTagsFromRecords()
         //        tagView.reloadData()
     }
     
@@ -492,8 +534,7 @@ extension VoiceTableViewController: NSFetchedResultsControllerDelegate {
 extension VoiceTableViewController: JTAppleCalendarViewDataSource {
     
     func configureCalendar(_ calendar: JTAppleCalendarView) -> ConfigurationParameters {
-        
-        let startDate = formatter.date(from: "Jan 01, 2016")!
+        let startDate = Date().firstDayOfYear()
         let endDate = Date()
         let parameters = ConfigurationParameters(startDate: startDate,
                                                  endDate: endDate,
@@ -572,7 +613,6 @@ extension VoiceTableViewController: JTAppleCalendarViewDelegate {
         do {
             try self.fetchResultController.performFetch()
             voiceRecords = fetchResultController.fetchedObjects as! [Voice]
-            originRecords = voiceRecords
             self.tableView.reloadData()
         } catch {
             let fetchError = error as NSError
@@ -587,11 +627,6 @@ extension VoiceTableViewController: JTAppleCalendarViewDelegate {
     func calendar(_ calendar: JTAppleCalendarView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
         setupViewsOfCalendar(startDate: visibleDates.monthDates.first!, endDate: visibleDates.monthDates.last!)
     }
-
-//    func calendar(calendar: JTAppleCalendarView, didScrollToDateSegmentStartingWithdate startDate: Date, endingWithDate endDate: Date) {
-//        setupViewsOfCalendar(startDate: startDate, endDate: endDate)
-//    }
-
 }
 
 
@@ -600,7 +635,7 @@ extension VoiceTableViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        if searchController.isActive && searchController.searchBar.text != "" {
+        if searchBar.text != "" {
             return filteredRecords.count
         }
         return voiceRecords.count
@@ -613,41 +648,13 @@ extension VoiceTableViewController: UITableViewDataSource {
         
         // Configure the cell...
         let voiceRecord: Voice
-        if searchController.isActive && searchController.searchBar.text != "" {
+        if searchBar.text != "" {
             voiceRecord = filteredRecords[indexPath.row]
         } else {
             voiceRecord = voiceRecords[indexPath.row]
         }
         
-        cell.titleLabel.text = voiceRecord.title
-        cell.transcriptionTextField.text = voiceRecord.transcript
-        
-        let  minutes = voiceRecord.length.intValue / 60
-        let  seconds = voiceRecord.length.intValue % 60
-        cell.lengthLabel.text = String(format:"%02i:%02i", minutes, seconds)
-        
-        //String(voiceRecord.objectForKey("length") as! Int)
-        
-        let date = voiceRecord.date //voiceRecord.objectForKey("date") as! NSDate
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMM"
-
-        var datestring = dateFormatter.string(from: date as Date)
-        cell.dateLabel.text = String(datestring)
-        
-        dateFormatter.dateFormat = "dd"
-        datestring = dateFormatter.string(from: date as Date)
-        cell.dayLabel.text = String(datestring)
-        
-        cell.tags = voiceRecord.tags! //voiceRecord.objectForKey("tags") as! [String]
-
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = voiceRecord.location.coordinate
-//        cell.mapView.showAnnotations([annotation], animated: true)
-//        cell.mapView.selectAnnotation(annotation, animated: true)
-
-        cell.voiceFileURL = voiceRecord.audio
+        cell.voiceRecord = voiceRecord
         
         cell.backgroundColor = UIColor.clear
         
@@ -671,10 +678,17 @@ extension VoiceTableViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+//        let cellIdentifier = "VoiceTableCell"
+//        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! VoiceTableCellView
+        
         if selectedCellIndexPath == indexPath {
             selectedCellIndexPath = nil
+            stopAudioPlayer()
+            
         } else {
             selectedCellIndexPath = indexPath
+            initAudioPlayer()
         }
         
         self.tableView.reloadData()
@@ -685,59 +699,33 @@ extension VoiceTableViewController: UITableViewDelegate {
 extension VoiceTableViewController: UISearchBarDelegate {
     
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-//        self.view .addGestureRecognizer(taptoHidekeyBoard!)
-//        if self.calendarViewHeightContraint.constant > 0 {
-//            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
-//            UIView.animate(withDuration: 0.5, animations: {
-//                self.weekDaysStackView.isHidden = true
-//                self.calendarViewHeightContraint.constant = 0
-//                self.view.layoutIfNeeded()
-//            })
-//        }
+        self.view .addGestureRecognizer(taptoHidekeyBoard!)
+        if self.calendarViewHeightContraint.constant > 0 {
+            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
+            UIView.animate(withDuration: 0.5, animations: {
+                self.weekDaysStackView.isHidden = true
+                self.calendarViewHeightContraint.constant = 0
+                self.view.layoutIfNeeded()
+            })
+        }
     }
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-//        searchBar.resignFirstResponder()
-//        self.view.removeGestureRecognizer(taptoHidekeyBoard!)
-//        if self.calendarViewHeightContraint.constant == 0 {
-//            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
-//            UIView.animate(withDuration: 0.5, animations: {
-//                self.weekDaysStackView.isHidden = true
-//                self.calendarViewHeightContraint.constant = 0
-//                self.view.layoutIfNeeded()
-//            })
-//        }
+        searchBar.resignFirstResponder()
+        self.view.removeGestureRecognizer(taptoHidekeyBoard!)
+        if self.calendarViewHeightContraint.constant == 0 {
+            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
+            UIView.animate(withDuration: 0.5, animations: {
+                self.weekDaysStackView.isHidden = true
+                self.calendarViewHeightContraint.constant = 0
+                self.view.layoutIfNeeded()
+            })
+        }
     }
     
-//    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-//        searchBar.resignFirstResponder();
-//    }
-    
-//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-//        searchBar.resignFirstResponder();
-//    }
-}
-
-extension VoiceTableViewController: UISearchControllerDelegate {
-    
-    func willPresentSearchController(_ searchController: UISearchController) {
-        
-        searchController.searchBar.setShowsCancelButton(false, animated: false)
-//        searchController.searchBar.becomeFirstResponder()
-//        UIView.animate(withDuration: 0.1) { () -> Void in
-//            self.view.alpha = 1.0
-//            searchController.searchBar.alpha = 1.0
-//        }
-        
-       // searchController.searchBar.setShowsCancelButton(false, animated: false)
-    }
-}
-
-// MARK: UISearchResultsUpdating
-extension VoiceTableViewController: UISearchResultsUpdating {
-    
-    func updateSearchResults(for searchController: UISearchController) {
-        filterContentForSearchText(searchText: searchController.searchBar.text!)
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String)  {
+        selectedCellIndexPath = nil
+        filterContentForSearchText(searchText: searchText)
     }
     
     func filterContentForSearchText(searchText: String, scope: String = "All") {
@@ -746,5 +734,107 @@ extension VoiceTableViewController: UISearchResultsUpdating {
             return transcript.lowercased().contains(searchText.lowercased())
         }
         tableView.reloadData()
+    }
+    
+   func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        selectedCellIndexPath = nil
+        searchBar.resignFirstResponder()
+        tableView.reloadData()
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        selectedCellIndexPath = nil
+        searchBar.resignFirstResponder()
+        tableView.reloadData()
+    }
+    
+}
+
+// MARK: AVAudioPlayerDelegate
+extension VoiceTableViewController: AVAudioPlayerDelegate {
+    
+    func initAudioPlayer() {
+        guard
+            let selectedCellIndexPath = selectedCellIndexPath,
+            let cell = tableView.cellForRow(at: selectedCellIndexPath) as? VoiceTableCellView,
+            let voiceRecord = cell.voiceRecord
+        else {return}
+        
+        session = AVAudioSession.sharedInstance()
+        try! session!.setCategory(AVAudioSessionCategoryPlayback)
+        try! session!.setActive(true)
+        
+        do {
+            try session!.overrideOutputAudioPort(AVAudioSessionPortOverride.speaker)
+        } catch {
+        }
+        
+        if let fileURL = voiceRecord.audio.absoluteURL {
+            let audioFileName = fileURL.lastPathComponent
+            let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            
+            let soundFileURL = documentDirectory.appendingPathComponent(audioFileName)
+            
+            let fileManager = FileManager.default
+            if fileManager.fileExists(atPath: soundFileURL.path) {
+                print("File Avaliable")
+                do {
+                    //   audioPlayer = nil
+                    try audioPlayer = AVAudioPlayer(contentsOf: soundFileURL, fileTypeHint: AVFileTypeAppleM4A)
+                    audioPlayer!.prepareToPlay()
+                    audioPlayer!.volume = 1.0
+                } catch {
+                    print("error initializing AVAudioPlayer: \(error)")
+                }
+            } else {
+                print("File Not Avaliable")
+            }
+            
+        }
+        
+    }
+    
+    func stopAudioPlayer() {
+        guard
+            let selectedCellIndexPath = selectedCellIndexPath,
+            let cell = tableView.cellForRow(at: selectedCellIndexPath) as? VoiceTableCellView,
+            let player = audioPlayer
+            else {return}
+        
+        player.stop()
+        //audioPlayer = nil
+        //timer?.invalidate()
+        //        progressView.progress = 0
+        //isPlaying = false
+        
+        cell.playButton.setBackgroundImage(#imageLiteral(resourceName: "play"), for: .normal)
+    }
+
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        stopAudioPlayer()
+    }
+    
+    func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
+       // stopTimer()
+    }
+    
+    func rewindCurrentFile(timeInterval: TimeInterval) {
+        if let audioPlayer = audioPlayer {
+            let wasPlaying = audioPlayer.isPlaying
+            
+            if wasPlaying {
+                audioPlayer.stop()
+            }
+            let newPlayPosition = audioPlayer.currentTime + timeInterval
+            if timeInterval >= 0 {
+                audioPlayer.currentTime = newPlayPosition >= audioPlayer.duration ? audioPlayer.duration : newPlayPosition
+            } else {
+                audioPlayer.currentTime = newPlayPosition > 0 ? audioPlayer.currentTime : 0
+            }
+            
+            if wasPlaying {
+                audioPlayer.play()
+            }
+        }
     }
 }
