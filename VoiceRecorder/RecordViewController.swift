@@ -91,7 +91,14 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
 
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPressed))
         longPress.minimumPressDuration = 0.2
+        let singleTap = UITapGestureRecognizer(target: self, action: #selector(singleTapped))
+        singleTap.numberOfTapsRequired = 1
+        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(doubleTapped))
+        doubleTap.numberOfTapsRequired = 2
         recordButton.addGestureRecognizer(longPress)
+        recordButton.addGestureRecognizer(singleTap)
+        recordButton.addGestureRecognizer(doubleTap)
+        
         let swipeLeft  = UISwipeGestureRecognizer(target:self ,action: #selector (showCalender) )
         swipeLeft.direction = UISwipeGestureRecognizerDirection.left
         self.view.addGestureRecognizer(swipeLeft)
