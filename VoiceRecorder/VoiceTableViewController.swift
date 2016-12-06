@@ -674,7 +674,7 @@ extension VoiceTableViewController: UITableViewDelegate {
         if selectedCellIndexPath == indexPath {
             return 222
         }
-        return 70
+        return 65
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -691,7 +691,11 @@ extension VoiceTableViewController: UITableViewDelegate {
             initAudioPlayer()
         }
         
-        self.tableView.reloadData()
+        tableView.beginUpdates()
+        tableView.deselectRow(at: indexPath, animated: false)
+        tableView.endUpdates()
+        
+       // self.tableView.reloadData()
     }
 }
 
