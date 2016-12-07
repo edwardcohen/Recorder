@@ -15,7 +15,7 @@ import Speech
 import KDCircularProgress
 //import SwiftSiriWaveformView
 
-class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetchedResultsControllerDelegate,UIViewControllerTransitioningDelegate, AVAudioRecorderDelegate, CLLocationManagerDelegate  {
+class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,UIViewControllerTransitioningDelegate, AVAudioRecorderDelegate, CLLocationManagerDelegate  {
    
     @IBOutlet var recordButton: UIButton!
     @IBOutlet var transTextView: UITextView!
@@ -31,7 +31,6 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
     @IBOutlet weak var listButton: UIButton!
     @IBOutlet var vCircularProgress: KDCircularProgress!
     
-    let recordLenght: Double = 90
     var recordingSession: AVAudioSession!
     var audioRecorder: AVAudioRecorder!
     var locationManager: CLLocationManager!
@@ -396,10 +395,6 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
         }
     }
     
-    func speechRecognizer(_ speechRecognizer: SFSpeechRecognizer, availabilityDidChange available: Bool) {
-        self.isconverstionActive = available
-    }
-    
     func stopRecording() {
         audioRecorder.stop()
         recordingTimer.invalidate()
@@ -441,9 +436,7 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
             vCircularProgress.angle = 0
         }
         
-        
-
-        if (timerCount >= recordLenght) {
+        if (timerCount >= Constants.MainParameters.durations) {
             
             audioRecorder.stop()
             UIView.animate(withDuration: 0.6, delay: 0.0, options:[], animations: {
@@ -679,13 +672,12 @@ class RecordViewController: UIViewController, SFSpeechRecognizerDelegate,NSFetch
     @IBAction func goToList(_ sender: UIButton) {
         if let scrollView = scrollView {
             let somePosition = CGPoint(x: self.view.frame.size.width * 2, y: 0)
-            
             scrollView.setContentOffset(somePosition, animated: true)
         }
     }
 }
 
-extension RecordViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+extension RecordViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return tags.count
@@ -693,23 +685,15 @@ extension RecordViewController: UICollectionViewDelegate, UICollectionViewDataSo
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-    let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! TagCellView
+        let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! TagCellView
         
-        tagCell.tagLabel.text = tags[indexPath.row]
-        
-   // self.configureCell(cell: tagCell, forIndexPath: indexPath)
+        tagCell.tagLabel.text = tags[indexPath.item]
         
         return tagCell
     }
-    
-//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-////        self.configureCell(cell: self.sizingCell!, forIndexPath: indexPath)
-////        return self.sizingCell!.systemLayoutSizeFitting(UILayoutFittingCompressedSize)
-//    }
-    
-    func configureCell(cell: TagCellView, forIndexPath indexPath: IndexPath) {
-        cell.tagLabel.text = tags[indexPath.item]
-    }
+}
+
+extension RecordViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if tags[indexPath.item] == "+" {
@@ -718,7 +702,7 @@ extension RecordViewController: UICollectionViewDelegate, UICollectionViewDataSo
             let ok = UIAlertAction(title: "OK", style: .default, handler: { (action) -> Void in
                 if let tagText = tagTextField!.text {
                     self.tags.insert(tagText, at: self.tags.count - 1)
-//                    self.tagView.reloadData()
+                    //                    self.tagView.reloadData()
                 }
             })
             let cancel = UIAlertAction(title: "Cancel", style: .default, handler: nil)
@@ -731,5 +715,19 @@ extension RecordViewController: UICollectionViewDelegate, UICollectionViewDataSo
             }
             present(alertController, animated: true, completion: nil)
         }
+    }
+}
+
+extension RecordViewController: ScrollViewRenewable {
+    
+    func renew() {
+        updateUI()
+    }
+}
+
+extension RecordViewController: SFSpeechRecognizerDelegate {
+   
+    func speechRecognizer(_ speechRecognizer: SFSpeechRecognizer, availabilityDidChange available: Bool) {
+        self.isconverstionActive = available
     }
 }

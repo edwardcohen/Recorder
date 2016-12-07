@@ -14,7 +14,7 @@ import MapKit
 import AVFoundation
 
 class VoiceTableViewController: UIViewController {
-
+    
     var voiceRecords:[Voice] = []
     var originRecords:[Voice] = []
     var filteredRecords: [Voice] = []
@@ -27,7 +27,7 @@ class VoiceTableViewController: UIViewController {
     var searchArray : NSMutableArray!
     var audioPlayer: AVAudioPlayer?
     var session:AVAudioSession?
-
+    
     let formatter = DateFormatter()
     
     var calendar  = Calendar(identifier: Calendar.Identifier.gregorian)
@@ -43,7 +43,7 @@ class VoiceTableViewController: UIViewController {
     @IBOutlet weak var spinner: UIActivityIndicatorView!
     @IBOutlet weak var calendarViewHeightContraint: NSLayoutConstraint!
     @IBOutlet weak var weekDaysStackView: UIStackView!
-
+    
     override func viewDidLoad() {
         
         super.viewDidLoad()
@@ -56,7 +56,7 @@ class VoiceTableViewController: UIViewController {
         
         let textFieldInsideSearchBar = searchBar.value(forKey: "searchField") as? UITextField
         textFieldInsideSearchBar?.textColor = UIColor.white
-    
+        
         tableView.delegate = self
         tableView.dataSource = self
         
@@ -64,10 +64,6 @@ class VoiceTableViewController: UIViewController {
         
         taptoHidekeyBoard = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         taptoHidekeyBoard?.numberOfTapsRequired = 1
-        
-        //Magic
-       // scrollView?.addConstraint(NSLayoutConstraint(item: self.view, attribute: .right, relatedBy: .equal, toItem: scrollView, attribute: .right, multiplier: 1.0, constant: 0))
-        //
         
     }
     
@@ -77,50 +73,19 @@ class VoiceTableViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        
         self.tableView.rowHeight = UITableViewAutomaticDimension
         
         spinner.hidesWhenStopped = true
         spinner.center = view.center
         view.addSubview(spinner)
-        spinner.startAnimating()
-        
-        getVoiceRecordsFromCoreData() { [unowned self] (success: Bool) -> Void in
-            if success {
-                OperationQueue.main.addOperation() {
-                    self.spinner.stopAnimating()
-                    self.calendarView.reloadData()
-                    self.calendarView.selectDates([Date()], triggerSelectionDelegate: true)
-                    self.getTagsFromRecords()
-                    self.tableView.reloadData()
-                }
-            }
-        }
-        
-        formatter.dateFormat = "MMM dd, yyyy"
-        calendar.timeZone = TimeZone(abbreviation: "GMT")!
-        calendarView.delegate = self
-        calendarView.dataSource = self
-        calendarView.registerCellViewXib(file: "CalendarCellView")
-        calendarView.direction = .horizontal
-        calendarView.cellInset = CGPoint(x: 1, y: 1)
-        calendarView.allowsMultipleSelection = false
-        calendarView.scrollEnabled = true
-        calendarView.scrollingMode = .stopAtEachCalendarFrameWidth
-        calendarView.itemSize = nil
-        calendarView.reloadData()
-        
-        // After reloading. Scroll to your selected date, and setup your calendar
-        
-        delayRunOnMainThread(delay: 0.1) {
-
-            self.calendarView.scrollToDate(Date() as Date, triggerScrollToDateDelegate: false, animateScroll: false)
-            self.setupViewsOfCalendar(startDate: Date().firstDayOfMonth(), endDate: Date().lastDayOfMonth())
-        }
         
         tableView.backgroundColor = UIColor.clear
         
+        renew()
+        collapseCalendarWithoutAnimation()
     }
-
+    
     @IBAction func onClickMonthButton(sender: AnyObject) {
         
         let monthName = DateFormatter().monthSymbols[(selectedMonth!-1) % 12]
@@ -135,7 +100,7 @@ class VoiceTableViewController: UIViewController {
         let endOfMonth = calendar.date(byAdding: comps2, to: startOfMonth)
         
         calendarView.selectDates([])
-
+        
         let predicate = NSPredicate(format: "(date >= %@) AND (date <=%@)", argumentArray: [startOfMonth, endOfMonth!])
         self.fetchResultController.fetchRequest.predicate = predicate
         do {
@@ -148,10 +113,14 @@ class VoiceTableViewController: UIViewController {
         }
         
     }
-
+    
     //MARK: Actions
     
     @IBAction func onBtnCollapseCallender() {
+        collapseCalendar()
+    }
+    
+    func collapseCalendar() {
         if self.calendarViewHeightContraint.constant == 0 {
             collapseCalendarButton.setImage(UIImage(named:"icon_minus"), for: UIControlState.normal)
             UIView.animate(withDuration: 0.5, animations: {
@@ -181,7 +150,7 @@ class VoiceTableViewController: UIViewController {
             guard let selectedCellIndexPath = self.selectedCellIndexPath else {return}
             
             
-             let voiceRecord = self.searchBar.text != "" ? self.filteredRecords[selectedCellIndexPath.row] : self.voiceRecords[selectedCellIndexPath.row]
+            let voiceRecord = self.searchBar.text != "" ? self.filteredRecords[selectedCellIndexPath.row] : self.voiceRecords[selectedCellIndexPath.row]
             
             if self.searchBar.text != "" {
                 self.filteredRecords.remove(at: selectedCellIndexPath.row)
@@ -198,7 +167,7 @@ class VoiceTableViewController: UIViewController {
             self.tableView.deleteRows(at: [selectedCellIndexPath], with: UITableViewRowAnimation.fade)
             self.selectedCellIndexPath = nil
             managedContext.delete(voiceRecord)
-        
+            
             do {
                 try managedContext.save()
             } catch let error as NSError {
@@ -210,12 +179,10 @@ class VoiceTableViewController: UIViewController {
         
     }
     
-    
     @IBAction func shareRecordButtonClicked(_ sender: UIButton) {
         
         guard let selectedCellIndexPath = selectedCellIndexPath else {return}
         let voiceRecord = searchBar.text != "" ? filteredRecords[selectedCellIndexPath.row] : voiceRecords[selectedCellIndexPath.row]
-        //let voiceRecord = voiceRecords[selectedCellIndexPath.row]
         
         if let transcript = voiceRecord.transcript {
             
@@ -236,11 +203,11 @@ class VoiceTableViewController: UIViewController {
         player.delegate = self
         if player.isPlaying {
             player.pause()
-            cell.playButton.setBackgroundImage(#imageLiteral(resourceName: "play"), for: .normal)
+            cell.playButton.setImage(#imageLiteral(resourceName: "play") , for: UIControlState.normal)
         } else {
             player.play()
             //startTimer()
-            cell.playButton.setBackgroundImage(#imageLiteral(resourceName: "pause"), for: .normal)
+            cell.playButton.setImage(#imageLiteral(resourceName: "pause") , for: UIControlState.normal)
         }
     }
     
@@ -252,14 +219,8 @@ class VoiceTableViewController: UIViewController {
         rewindCurrentFile(timeInterval: -1)
     }
     
-    
-//    override func viewDidAppear(_ animated: Bool) {
-//        super.viewDidAppear(animated)
-//    }
-    
     func setupViewsOfCalendar(startDate: Date, endDate: Date) {
         let month = Calendar.current.component(Calendar.Component.month, from: endDate)
-//        let monthName = NSDateFormatter().monthSymbols[(month-1) % 12] // 0 indexed array
         selectedMonth = month
         let year = Calendar.current.component(Calendar.Component.year, from: endDate)
         selectedYear = year
@@ -279,7 +240,7 @@ class VoiceTableViewController: UIViewController {
                 day = 30
             }
         }
-
+        
         let dateMakerFormatter = DateFormatter()
         dateMakerFormatter.dateFormat = "yyyy/MM/dd"
         let keptDate = dateMakerFormatter.date(from: String(format: "%i/%i/%i",year,month,day))!
@@ -289,43 +250,41 @@ class VoiceTableViewController: UIViewController {
         let selected = dateFormatter.string(from: keptDate)
         monthButton.setTitle(selected, for: UIControlState.normal)
         calendarView.selectDates([keptDate])
-//        yearButton.setTitle(String(year), forState: UIControlState.Normal)
-        
     }
     
-//    func getRecordsFromCloud(completionHandler: (Bool) -> Void) {
-//        // Fetch data using Operational API
-//        let cloudContainer = CKContainer.defaultContainer()
-//        let publicDatabase = cloudContainer.publicCloudDatabase
-//        let predicate = NSPredicate(value: true)
-//        let query = CKQuery(recordType: "Voice", predicate: predicate)
-//        query.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-//        
-//        // Create the query operation with the query
-//        let queryOperation = CKQueryOperation(query: query)
-//        queryOperation.desiredKeys = ["title", "length", "date", "location", "tags", "marks"]
-//        queryOperation.queuePriority = .VeryHigh
-//        queryOperation.resultsLimit = 50
-//        queryOperation.recordFetchedBlock = { (record:CKRecord!) -> Void in
-//            if let voiceRecord = record {
-//                self.voiceRecords.append(voiceRecord)
-//            }
-//        }
+    //    func getRecordsFromCloud(completionHandler: (Bool) -> Void) {
+    //        // Fetch data using Operational API
+    //        let cloudContainer = CKContainer.defaultContainer()
+    //        let publicDatabase = cloudContainer.publicCloudDatabase
+    //        let predicate = NSPredicate(value: true)
+    //        let query = CKQuery(recordType: "Voice", predicate: predicate)
+    //        query.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+    //
+    //        // Create the query operation with the query
+    //        let queryOperation = CKQueryOperation(query: query)
+    //        queryOperation.desiredKeys = ["title", "length", "date", "location", "tags", "marks"]
+    //        queryOperation.queuePriority = .VeryHigh
+    //        queryOperation.resultsLimit = 50
+    //        queryOperation.recordFetchedBlock = { (record:CKRecord!) -> Void in
+    //            if let voiceRecord = record {
+    //                self.voiceRecords.append(voiceRecord)
+    //            }
+    //        }
     
-//        queryOperation.queryCompletionBlock = { (cursor:CKQueryCursor?, error:NSError?) -> Void in
-//            if (error != nil) {
-//                print("Failed to get data from iCloud - \(error!.localizedDescription)")
-//                completionHandler(false)
-//                return
-//            }
-//            
-//            print("Retrieved data from iCloud")
-//            completionHandler(true)
-//        }
+    //        queryOperation.queryCompletionBlock = { (cursor:CKQueryCursor?, error:NSError?) -> Void in
+    //            if (error != nil) {
+    //                print("Failed to get data from iCloud - \(error!.localizedDescription)")
+    //                completionHandler(false)
+    //                return
+    //            }
+    //
+    //            print("Retrieved data from iCloud")
+    //            completionHandler(true)
+    //        }
     
-        // Execute the query
-//        publicDatabase.addOperation(queryOperation)
-//    }
+    // Execute the query
+    //        publicDatabase.addOperation(queryOperation)
+    //    }
     
     func getVoiceRecordsFromCoreData(completionHandler: (Bool) -> Void) {
         // Load the voices from database
@@ -354,8 +313,7 @@ class VoiceTableViewController: UIViewController {
     func getTagsFromRecords() {
         var tags = [String]()
         for voiceRecord in voiceRecords {
-//            if let recordTags = voiceRecord.objectForKey("tags") as? [String] {
-              if let recordTags = voiceRecord.tags {
+            if let recordTags = voiceRecord.tags {
                 for recordTag in recordTags {
                     tags.append(recordTag)
                 }
@@ -400,33 +358,33 @@ class VoiceTableViewController: UIViewController {
         return URLs[0]
     }
     
-//    func getAudioFromCloud(voiceRecord: CKRecord, completionHandler: (Bool, NSURL?) -> Void) {
-//        // Fetch Audio from Cloud in background
-//        let publicDatabase = CKContainer.defaultContainer().publicCloudDatabase
-//        let fetchRecordsImageOperation = CKFetchRecordsOperation(recordIDs:
-//            [voiceRecord.recordID])
-//        fetchRecordsImageOperation.desiredKeys = ["audio"]
-//        fetchRecordsImageOperation.queuePriority = .VeryHigh
-//        fetchRecordsImageOperation.perRecordCompletionBlock = {(record:CKRecord?,
-//            recordID:CKRecordID?, error:NSError?) -> Void in
-//            if (error != nil) {
-//                print("Failed to get voice audio: \(error!.localizedDescription)")
-//                completionHandler(false, nil)
-//                return
-//            }
-//            if let voiceRecord = record {
-//                NSOperationQueue.mainQueue().addOperationWithBlock() {
-//                    if let audioAsset = voiceRecord.objectForKey("audio") as? CKAsset {
-//                        completionHandler(true, audioAsset.fileURL)
-//                    }
-//                }
-//            } else {
-//                completionHandler(false, nil)
-//            }
-//            
-//        } 
-//        publicDatabase.addOperation(fetchRecordsImageOperation)
-//    }
+    //    func getAudioFromCloud(voiceRecord: CKRecord, completionHandler: (Bool, NSURL?) -> Void) {
+    //        // Fetch Audio from Cloud in background
+    //        let publicDatabase = CKContainer.defaultContainer().publicCloudDatabase
+    //        let fetchRecordsImageOperation = CKFetchRecordsOperation(recordIDs:
+    //            [voiceRecord.recordID])
+    //        fetchRecordsImageOperation.desiredKeys = ["audio"]
+    //        fetchRecordsImageOperation.queuePriority = .VeryHigh
+    //        fetchRecordsImageOperation.perRecordCompletionBlock = {(record:CKRecord?,
+    //            recordID:CKRecordID?, error:NSError?) -> Void in
+    //            if (error != nil) {
+    //                print("Failed to get voice audio: \(error!.localizedDescription)")
+    //                completionHandler(false, nil)
+    //                return
+    //            }
+    //            if let voiceRecord = record {
+    //                NSOperationQueue.mainQueue().addOperationWithBlock() {
+    //                    if let audioAsset = voiceRecord.objectForKey("audio") as? CKAsset {
+    //                        completionHandler(true, audioAsset.fileURL)
+    //                    }
+    //                }
+    //            } else {
+    //                completionHandler(false, nil)
+    //            }
+    //
+    //        }
+    //        publicDatabase.addOperation(fetchRecordsImageOperation)
+    //    }
     
     func getAudioFromCoreData(voiceRecord: Voice, completionHandler: (Bool, NSURL?) -> Void) {
         // Fetch Audio from Core Data in background
@@ -482,30 +440,36 @@ extension VoiceTableViewController: NSFetchedResultsControllerDelegate {
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
-//        switch type {
-//        case .insert:
-//            if let _newIndexPath = newIndexPath {
-//                tableView.insertRows(at: [_newIndexPath], with: .fade)
-//            }
-//        case .delete:
-//            if let _indexPath = indexPath {
-//                tableView.deleteRows(at: [_indexPath], with: .fade)
-//                
-//                //self.voiceRecords.remove(at: _indexPath.row)
-//               // calendarView.reloadData()
-//            }
-//        case .update:
-//            if let _indexPath = indexPath {
-//                tableView.reloadRows(at: [_indexPath], with: .fade)
-//            }
-//            
-//        default:
-//            tableView.reloadData()
-//        }
+        self.calendarView.reloadData()
         
-//        voiceRecords = controller.fetchedObjects as! [Voice]
-//        originRecords = voiceRecords
-//        self.getTagsFromRecords()
+        //        switch type {
+        //        case .insert:
+        //            self.calendarView.reloadData()
+        //            //if let _newIndexPath = newIndexPath {
+        //                //tableView.insertRows(at: [_newIndexPath], with: .fade)
+        //            //}
+        //        case .delete:
+        //            self.calendarView.reloadData()
+        //            //if let _indexPath = indexPath {
+        //                //tableView.deleteRows(at: [_indexPath], with: .fade)
+        //
+        //                //self.voiceRecords.remove(at: _indexPath.row)
+        //               // calendarView.reloadData()
+        //            }
+        //        case .update:
+        //        self.calendarView.reloadData()
+        //            //if let _indexPath = indexPath {
+        //                //tableView.reloadRows(at: [_indexPath], with: .fade)
+        //            //}
+        //
+        //        default:
+        //            self.calendarView.reloadData()
+        //            //tableView.reloadData()
+        //        }
+        
+        //        voiceRecords = controller.fetchedObjects as! [Voice]
+        //        originRecords = voiceRecords
+        //        self.getTagsFromRecords()
         //        tagView.reloadData()
     }
     
@@ -538,11 +502,11 @@ extension VoiceTableViewController: JTAppleCalendarViewDataSource {
         let endDate = Date()
         let parameters = ConfigurationParameters(startDate: startDate,
                                                  endDate: endDate,
-                                                 numberOfRows: 6, 
-            calendar: Calendar.current,
-            generateInDates: .forAllMonths,
-            generateOutDates: .tillEndOfGrid,
-            firstDayOfWeek: .sunday)
+                                                 numberOfRows: 6,
+                                                 calendar: Calendar.current,
+                                                 generateInDates: .forAllMonths,
+                                                 generateOutDates: .tillEndOfGrid,
+                                                 firstDayOfWeek: .sunday)
         
         return parameters
     }
@@ -570,7 +534,6 @@ extension VoiceTableViewController: JTAppleCalendarViewDelegate {
         let predicate = NSPredicate(format: "(date >= %@) AND (date <=%@)", argumentArray: [startOfDay, endOfDay!])
         self.fetchResultController.fetchRequest.predicate = predicate
         do {
-            //            let count = try self.fetchResultController.managedObjectContext.countForFetchRequest(fetchRequest)
             let count = try self.fetchResultController.managedObjectContext.count(for: self.fetchResultController.fetchRequest)
             if count > 0 {
                 hasVoice = true
@@ -613,7 +576,11 @@ extension VoiceTableViewController: JTAppleCalendarViewDelegate {
         do {
             try self.fetchResultController.performFetch()
             voiceRecords = fetchResultController.fetchedObjects as! [Voice]
-            self.tableView.reloadData()
+            if searchBar.text != "" {
+                filterContentForSearchText(searchText: searchBar.text!)
+            } else {
+                self.tableView.reloadData()
+            }
         } catch {
             let fetchError = error as NSError
             print("\(fetchError), \(fetchError.userInfo)")
@@ -632,7 +599,7 @@ extension VoiceTableViewController: JTAppleCalendarViewDelegate {
 
 // MARK: UITableViewDataSource
 extension VoiceTableViewController: UITableViewDataSource {
-
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if searchBar.text != "" {
@@ -642,7 +609,7 @@ extension VoiceTableViewController: UITableViewDataSource {
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
+        
         let cellIdentifier = "VoiceTableCell"
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! VoiceTableCellView
         
@@ -662,7 +629,6 @@ extension VoiceTableViewController: UITableViewDataSource {
         backgroundView.backgroundColor = UIColor.clear
         cell.selectedBackgroundView = backgroundView
         
-//        cell.tagView.reloadData()
         return cell
     }
 }
@@ -679,9 +645,6 @@ extension VoiceTableViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-//        let cellIdentifier = "VoiceTableCell"
-//        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! VoiceTableCellView
-        
         if selectedCellIndexPath == indexPath {
             selectedCellIndexPath = nil
             stopAudioPlayer()
@@ -695,7 +658,7 @@ extension VoiceTableViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: false)
         tableView.endUpdates()
         
-       // self.tableView.reloadData()
+        // self.tableView.reloadData()
     }
 }
 
@@ -740,7 +703,7 @@ extension VoiceTableViewController: UISearchBarDelegate {
         tableView.reloadData()
     }
     
-   func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         selectedCellIndexPath = nil
         searchBar.resignFirstResponder()
         tableView.reloadData()
@@ -762,7 +725,7 @@ extension VoiceTableViewController: AVAudioPlayerDelegate {
             let selectedCellIndexPath = selectedCellIndexPath,
             let cell = tableView.cellForRow(at: selectedCellIndexPath) as? VoiceTableCellView,
             let voiceRecord = cell.voiceRecord
-        else {return}
+            else {return}
         
         session = AVAudioSession.sharedInstance()
         try! session!.setCategory(AVAudioSessionCategoryPlayback)
@@ -783,7 +746,6 @@ extension VoiceTableViewController: AVAudioPlayerDelegate {
             if fileManager.fileExists(atPath: soundFileURL.path) {
                 print("File Avaliable")
                 do {
-                    //   audioPlayer = nil
                     try audioPlayer = AVAudioPlayer(contentsOf: soundFileURL, fileTypeHint: AVFileTypeAppleM4A)
                     audioPlayer!.prepareToPlay()
                     audioPlayer!.volume = 1.0
@@ -806,20 +768,15 @@ extension VoiceTableViewController: AVAudioPlayerDelegate {
             else {return}
         
         player.stop()
-        //audioPlayer = nil
-        //timer?.invalidate()
-        //        progressView.progress = 0
-        //isPlaying = false
-        
-        cell.playButton.setBackgroundImage(#imageLiteral(resourceName: "play"), for: .normal)
+        cell.playButton.setImage(#imageLiteral(resourceName: "play") , for: UIControlState.normal)
     }
-
+    
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         stopAudioPlayer()
     }
     
     func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
-       // stopTimer()
+        //stopTimer()
     }
     
     func rewindCurrentFile(timeInterval: TimeInterval) {
@@ -841,4 +798,52 @@ extension VoiceTableViewController: AVAudioPlayerDelegate {
             }
         }
     }
+}
+
+extension VoiceTableViewController: ScrollViewRenewable {
+    
+    func renew() {
+        
+        spinner.startAnimating()
+        
+        getVoiceRecordsFromCoreData() { [unowned self] (success: Bool) -> Void in
+            if success {
+                OperationQueue.main.addOperation() {
+                    self.spinner.stopAnimating()
+                    self.calendarView.reloadData()
+                    self.calendarView.selectDates([Date()], triggerSelectionDelegate: true)
+                    self.getTagsFromRecords()
+                    self.tableView.reloadData()
+                }
+            }
+        }
+        
+        formatter.dateFormat = "MMM dd, yyyy"
+        calendar.timeZone = TimeZone(abbreviation: "GMT")!
+        calendarView.delegate = self
+        calendarView.dataSource = self
+        calendarView.registerCellViewXib(file: "CalendarCellView")
+        calendarView.direction = .horizontal
+        calendarView.cellInset = CGPoint(x: 1, y: 1)
+        calendarView.allowsMultipleSelection = false
+        calendarView.scrollEnabled = true
+        calendarView.scrollingMode = .stopAtEachCalendarFrameWidth
+        calendarView.itemSize = nil
+        calendarView.reloadData()
+        
+        // After reloading. Scroll to your selected date, and setup your calendar
+        
+        delayRunOnMainThread(delay: 0.1) {
+            self.setupViewsOfCalendar(startDate: Date().firstDayOfMonth(), endDate: Date().lastDayOfMonth())
+            self.calendarView.scrollToDate(Date() as Date, triggerScrollToDateDelegate: false, animateScroll: false)
+        }
+    }
+    
+    func collapseCalendarWithoutAnimation() {
+        collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
+        self.weekDaysStackView.isHidden = true
+        self.calendarViewHeightContraint.constant = 0
+        self.view.layoutIfNeeded()
+    }
+    
 }
