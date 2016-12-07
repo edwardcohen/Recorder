@@ -83,7 +83,7 @@ class VoiceTableViewController: UIViewController {
         tableView.backgroundColor = UIColor.clear
         
         renew()
-        collapseCalendarWithoutAnimation()
+//        collapseCalendarWithoutAnimation()
     }
     
     @IBAction func onClickMonthButton(sender: AnyObject) {

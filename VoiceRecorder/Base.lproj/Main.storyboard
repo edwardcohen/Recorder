@@ -798,7 +798,7 @@
                                     <constraint firstAttribute="width" constant="31" id="G9j-4I-nJ4"/>
                                     <constraint firstAttribute="height" constant="32" id="Xga-Y3-u0U"/>
                                 </constraints>
-                                <state key="normal" image="CheckMark"/>
+                                <state key="normal" image="Check box"/>
                                 <connections>
                                     <action selector="doneTapped" destination="h8c-J8-nD0" eventType="touchUpInside" id="ibc-Ni-Fzf"/>
                                 </connections>
@@ -964,7 +964,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="CheckMark" width="505" height="505"/>
+        <image name="Check box" width="505" height="505"/>
         <image name="Gear" width="48" height="47"/>
         <image name="List" width="88" height="80"/>
         <image name="Location" width="157" height="165"/>
