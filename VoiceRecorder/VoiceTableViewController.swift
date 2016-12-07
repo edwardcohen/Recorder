@@ -15,8 +15,8 @@ import AVFoundation
 
 class VoiceTableViewController: UIViewController {
     
-    var voiceRecords:[Voice] = []
-    var originRecords:[Voice] = []
+    var voiceRecords: [Voice] = []
+    var originRecords: [Voice] = []
     var filteredRecords: [Voice] = []
     var fetchResultController:NSFetchedResultsController<NSFetchRequestResult>!
     var selectedDate: Date?

@@ -56,6 +56,7 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
     var timerCount: Double!
     var displayLink: CADisplayLink!
     let customPresentAnimationController = CustomPresentAnimationController()
+    var currentTitle = ""
     
     override func viewDidLoad() {
         view.backgroundColor = UIColor.recordBlack
@@ -176,6 +177,10 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
         switch gesture.state {
         case UIGestureRecognizerState.began:
             print("begin long press")
+            UIView.animate(withDuration: 0.4,
+                           animations: {
+                            self.vCircularProgress.transform = CGAffineTransform(scaleX: 1.25, y: 1.25)
+            }, completion: nil)
 
             if recordState == RecordState.None {
                 startRecording()
@@ -199,6 +204,10 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
             
         case .ended, .cancelled:
             print("end long press")
+            UIView.animate(withDuration: 0.4,
+                           animations: {
+                            self.vCircularProgress.transform = CGAffineTransform.identity
+            }, completion: nil)
             if recordState == RecordState.Continuous {
                 if audioEngine.isRunning {
                     audioEngine.stop()
@@ -265,6 +274,7 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
         listButton.isHidden = isHiddeMain
     }
     
+    
     func updateUI() {
         switch recordState {
         case RecordState.None:
@@ -272,9 +282,9 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
             vCircularProgress.angle = 0
             showedBasicButton(isHiddeMain: false, isHidde: true)
             UIView.animate(withDuration: 0.6, delay: 0.0, options:[.repeat, .autoreverse], animations: {
-               self.view.backgroundColor = UIColor.recordBlack
+                self.view.backgroundColor = UIColor.recordBlack
             }, completion:nil)
-        
+            scrollView?.isScrollEnabled = true
         case RecordState.OneTime, RecordState.Continuous:
             viewCenterRecord.backgroundColor = UIColor(red: 0xFE/255, green: 0x00/255, blue: 0x00/255, alpha: 1.0)
             UIView.animate(withDuration: 0.6, delay: 0.0, options:[], animations: {
@@ -294,6 +304,7 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
                 self.view.backgroundColor = UIColor.recordBlack
             }, completion:nil)
             showedBasicButton(isHiddeMain: true, isHidde: false)
+            scrollView?.isScrollEnabled = false
         }
     }
     
@@ -307,7 +318,6 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
         let filename = NSUUID().uuidString + ".m4a"
         audioFileURL = getDocumentsDirectoryURL().appendingPathComponent(filename)
         timerLabel.isHidden = false
-        vCircularProgress.alpha = 0.33
         let settings = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
             AVSampleRateKey: 12000.0,
@@ -428,23 +438,13 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
         print(angle)
         vCircularProgress.angle = angle * 2
         
-        if timerCount > 30 && timerCount < 31 {
-            vCircularProgress.alpha = 0.66
-            vCircularProgress.angle = 0
-        } else if timerCount > 60 && timerCount < 61 {
-            vCircularProgress.alpha = 1
-            vCircularProgress.angle = 0
-        }
-        
-        if (timerCount >= Constants.MainParameters.durations) {
-            
+        if timerCount >= Constants.MainParameters.durations {
             audioRecorder.stop()
             UIView.animate(withDuration: 0.6, delay: 0.0, options:[], animations: {
                 self.view.backgroundColor = UIColor.recordBlack
             }, completion:nil)
             vCircularProgress.angle = 360
             recordingTimer.invalidate()
-
         }
         
         timerCount = timerCount + 0.01
@@ -527,7 +527,7 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
         if transTextView.text == "Transcript goes here..." {
             transTextView.text = ""
         }
-        let title = !((titleText.text?.isEmpty)!) ? titleText.text : now
+
         let trans = !((transTextView.text?.isEmpty)!) ? transTextView.text : ""
         let length = timerCount - 1 < 0 ? 0 : timerCount - 1
         let tags = self.tags.filter() { $0 != "+" }
@@ -553,7 +553,7 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
         
         if let managedObjectContext = (UIApplication.shared.delegate as? AppDelegate)?.managedObjectContext {
             voice = NSEntityDescription.insertNewObject(forEntityName: "Voice", into: managedObjectContext) as! Voice
-            voice.title = title
+            voice.title = currentTitle
             voice.tags = tags
             voice.marks = marks
             voice.length = NSNumber(value: length)
@@ -675,6 +675,17 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
             scrollView.setContentOffset(somePosition, animated: true)
         }
     }
+    
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        var visibleRect = CGRect()
+        visibleRect.origin = tagView.contentOffset
+        visibleRect.size = tagView.bounds.size
+        let visiblePoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
+        let visibleIndexPath: IndexPath = tagView.indexPathForItem(at: visiblePoint)!
+        currentTitle = tags[visibleIndexPath.row]
+//        print(visibleIndexPath)
+    }
 }
 
 extension RecordViewController: UICollectionViewDataSource {
@@ -686,9 +697,7 @@ extension RecordViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! TagCellView
-        
         tagCell.tagLabel.text = tags[indexPath.item]
-        
         return tagCell
     }
 }
