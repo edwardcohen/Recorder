@@ -29,7 +29,6 @@ class VoiceTableViewController: UIViewController {
     var session:AVAudioSession?
     
     let formatter = DateFormatter()
-    
     var calendar  = Calendar(identifier: Calendar.Identifier.gregorian)
     var tags = [String]()
     var selectedCellIndexPath:IndexPath?
@@ -48,7 +47,6 @@ class VoiceTableViewController: UIViewController {
         
         super.viewDidLoad()
         self.view.setNeedsLayout()
-        self.addGradientFooter()
         self.view.bringSubview(toFront: buttonsView)
         
         view.backgroundColor = UIColor.recordBlack
@@ -56,17 +54,19 @@ class VoiceTableViewController: UIViewController {
         
         let textFieldInsideSearchBar = searchBar.value(forKey: "searchField") as? UITextField
         textFieldInsideSearchBar?.textColor = UIColor.white
+        let font = UIFont(name: "SFUIDisplay-Regular", size: 14)
+        textFieldInsideSearchBar?.font = font
         
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.estimatedRowHeight = 65
+        tableView.rowHeight = UITableViewAutomaticDimension
         
-        view.backgroundColor = UIColor.recordBlack
+        view.backgroundColor = .recordBlack
         
         taptoHidekeyBoard = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         taptoHidekeyBoard?.numberOfTapsRequired = 1
-        
     }
-    
     
     func handleTap(sender: UITapGestureRecognizer? = nil) {
         searchBar.resignFirstResponder()
@@ -601,7 +601,6 @@ extension VoiceTableViewController: JTAppleCalendarViewDelegate {
 extension VoiceTableViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
         if searchBar.text != "" {
             return filteredRecords.count
         }
@@ -609,11 +608,8 @@ extension VoiceTableViewController: UITableViewDataSource {
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "VoiceTableCell", for: indexPath) as! VoiceTableCellView
         
-        let cellIdentifier = "VoiceTableCell"
-        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! VoiceTableCellView
-        
-        // Configure the cell...
         let voiceRecord: Voice
         if searchBar.text != "" {
             voiceRecord = filteredRecords[indexPath.row]
@@ -622,8 +618,7 @@ extension VoiceTableViewController: UITableViewDataSource {
         }
         
         cell.voiceRecord = voiceRecord
-        
-        cell.backgroundColor = UIColor.clear
+        cell.backgroundColor = .clear
         
         let backgroundView = UIView()
         backgroundView.backgroundColor = UIColor.clear
@@ -638,9 +633,13 @@ extension VoiceTableViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if selectedCellIndexPath == indexPath {
-            return 222
+            return UITableViewAutomaticDimension
         }
         return 65
+    }
+    
+    private func tableView(tableView: UITableView, estimatedHeightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return UITableViewAutomaticDimension
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -648,7 +647,6 @@ extension VoiceTableViewController: UITableViewDelegate {
         if selectedCellIndexPath == indexPath {
             selectedCellIndexPath = nil
             stopAudioPlayer()
-            
         } else {
             selectedCellIndexPath = indexPath
             initAudioPlayer()
@@ -678,7 +676,6 @@ extension VoiceTableViewController: UISearchBarDelegate {
     }
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-        searchBar.resignFirstResponder()
         self.view.removeGestureRecognizer(taptoHidekeyBoard!)
         if self.calendarViewHeightContraint.constant == 0 {
             collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
@@ -705,16 +702,13 @@ extension VoiceTableViewController: UISearchBarDelegate {
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         selectedCellIndexPath = nil
-        searchBar.resignFirstResponder()
         tableView.reloadData()
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         selectedCellIndexPath = nil
-        searchBar.resignFirstResponder()
         tableView.reloadData()
     }
-    
 }
 
 // MARK: AVAudioPlayerDelegate

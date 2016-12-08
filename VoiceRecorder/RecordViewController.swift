@@ -40,7 +40,7 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
     var voiceRecords: [Voice] = []
     var isSpeechEnabled = false
     var isconverstionActive = false
-    var tags = ["+", "How was your day?", "Tell me a nice thing you did.", "Tell me a story.", "What did you do today?"]
+    var tags = ["How was your day?", "Tell me a nice thing you did.", "Tell me a story."] //"+",
     var marks: [Double] = []
     var scrollView: UIScrollView?
     
@@ -56,7 +56,7 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
     var timerCount: Double!
     var displayLink: CADisplayLink!
     let customPresentAnimationController = CustomPresentAnimationController()
-    var currentTitle = ""
+    var currentTitle = "How was your day?"
     
     override func viewDidLoad() {
         view.backgroundColor = UIColor.recordBlack
@@ -177,6 +177,7 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
         switch gesture.state {
         case UIGestureRecognizerState.began:
             print("begin long press")
+            transTextView.isHidden = false
             UIView.animate(withDuration: 0.4,
                            animations: {
                             self.vCircularProgress.transform = CGAffineTransform(scaleX: 1.25, y: 1.25)
@@ -272,6 +273,7 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
         deleteButton.isHidden = isHidde
         locationButton.isHidden = isHiddeMain
         listButton.isHidden = isHiddeMain
+        tagView.isHidden = isHiddeMain
     }
     
     
@@ -281,30 +283,34 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
             viewCenterRecord.backgroundColor = UIColor.white
             vCircularProgress.angle = 0
             showedBasicButton(isHiddeMain: false, isHidde: true)
-            UIView.animate(withDuration: 0.6, delay: 0.0, options:[.repeat, .autoreverse], animations: {
+            UIView.animate(withDuration: 0.4, delay: 0.0, options:[.repeat, .autoreverse], animations: {
                 self.view.backgroundColor = UIColor.recordBlack
             }, completion:nil)
             scrollView?.isScrollEnabled = true
+            transTextView.isHidden = true
         case RecordState.OneTime, RecordState.Continuous:
             viewCenterRecord.backgroundColor = UIColor(red: 0xFE/255, green: 0x00/255, blue: 0x00/255, alpha: 1.0)
-            UIView.animate(withDuration: 0.6, delay: 0.0, options:[], animations: {
+            UIView.animate(withDuration: 0.4, delay: 0.0, options:[], animations: {
                 self.view.backgroundColor = UIColor.recordRed
             }, completion:nil)
             showedBasicButton(isHiddeMain: true, isHidde: true)
+            transTextView.isHidden = false
         case RecordState.Done:
             viewCenterRecord.backgroundColor = UIColor.white
-            UIView.animate(withDuration: 0.6, delay: 0.0, options:[], animations: {
+            UIView.animate(withDuration: 0.4, delay: 0.0, options:[], animations: {
                 self.view.backgroundColor = UIColor.recordBlack
             }, completion:nil)
             vCircularProgress.angle = 0
             showedBasicButton(isHiddeMain: true, isHidde: false)
+            transTextView.isHidden = true
         case RecordState.Pause:
             viewCenterRecord.backgroundColor = UIColor.white
-            UIView.animate(withDuration: 0.6, delay: 0.0, options:[], animations: {
+            UIView.animate(withDuration: 0.4, delay: 0.0, options:[], animations: {
                 self.view.backgroundColor = UIColor.recordBlack
             }, completion:nil)
             showedBasicButton(isHiddeMain: true, isHidde: false)
             scrollView?.isScrollEnabled = false
+            transTextView.isHidden = false
         }
     }
     
@@ -440,7 +446,7 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
         
         if timerCount >= Constants.MainParameters.durations {
             audioRecorder.stop()
-            UIView.animate(withDuration: 0.6, delay: 0.0, options:[], animations: {
+            UIView.animate(withDuration: 0.4, delay: 0.0, options:[], animations: {
                 self.view.backgroundColor = UIColor.recordBlack
             }, completion:nil)
             vCircularProgress.angle = 360
@@ -698,6 +704,7 @@ extension RecordViewController: UICollectionViewDataSource {
         
         let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! TagCellView
         tagCell.tagLabel.text = tags[indexPath.item]
+        tagCell.tagLabel.adjustsFontSizeToFitWidth = true
         return tagCell
     }
 }

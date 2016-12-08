@@ -20,18 +20,6 @@ extension UIColor {
     }
 }
 
-
-extension UIViewController {
-    func addGradientFooter() {
-        let view = UIView(frame: CGRect(x: 0, y: self.view.frame.height - 90, width: self.view.frame.width, height: 90))
-        let gradient = Gradient().gl
-        gradient.frame = view.bounds
-        view.layer.addSublayer(gradient)
-        view.alpha = 0.4
-        self.view.addSubview(view)
-    }
-}
-
 extension Date {
     func lastDayOfMonth() -> Date {
         let calendar = Calendar.current
