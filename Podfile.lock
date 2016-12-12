@@ -1,15 +1,18 @@
 PODS:
-  - JTAppleCalendar (6.0.3)
+  - JTAppleCalendar (6.0.5)
   - KDCircularProgress (1.5.2)
+  - SoundWave (0.1.1)
 
 DEPENDENCIES:
   - JTAppleCalendar (~> 6.0)
   - KDCircularProgress (~> 1.5)
+  - SoundWave
 
 SPEC CHECKSUMS:
-  JTAppleCalendar: 69683a07831c24a080e0fc0f76c9852627ef4d6a
+  JTAppleCalendar: 7ea3f3e66fcbbb62978a01a58e3a3ae88fdad7cc
   KDCircularProgress: 12f677b2deb02409ab48c6cae1898d146b8ad549
+  SoundWave: ccaf4aac7d56263b871f1bef4c2f84714b73738b
 
-PODFILE CHECKSUM: 508ee2a4c14911ddb5d4432f7d1eaf39d97f3281
+PODFILE CHECKSUM: 53cb5897fd28f6b4e706aaf2ac585e3708703b20
 
-COCOAPODS: 1.0.1
+COCOAPODS: 1.1.1
