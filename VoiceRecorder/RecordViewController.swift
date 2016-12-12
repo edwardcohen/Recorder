@@ -574,7 +574,7 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
             voice.date = date
             voice.audio = audio as NSURL
             voice.transcript = trans
-            voice.metering = metering
+//            voice.metering = metering
 //            saveRecordToCloud(voice)
 
             do {
