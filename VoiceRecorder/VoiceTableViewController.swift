@@ -43,6 +43,8 @@ class VoiceTableViewController: UIViewController {
     @IBOutlet weak var calendarViewHeightContraint: NSLayoutConstraint!
     @IBOutlet weak var weekDaysStackView: UIStackView!
     
+    let viewModel = ViewModel()
+    
     override func viewDidLoad() {
         
         super.viewDidLoad()
@@ -206,9 +208,25 @@ class VoiceTableViewController: UIViewController {
             cell.playButton.setImage(#imageLiteral(resourceName: "play") , for: UIControlState.normal)
         } else {
             player.play()
-            //startTimer()
+            let data = voiceRecords[selectedCellIndexPath.row]
+            let record = SoundRecord(audioFilePathLocal: player.url, meteringLevels: data.metering)
+           // player.updateMeters()
+//            let array = record.meteringLevels!.map({ $0 * Float(10)})
+//            cell.waves.meteringLevels = array
+////                record.meteringLevels
+//            cell.waves.audioVisualizationMode = .read
+//            cell.waves.meteringLevelBarWidth = 1.0
+//            cell.waves.gradientStartColor = .black
+//            cell.waves.gradientEndColor = .white
+//            cell.waves.play(for: TimeInterval(data.length.floatValue))
+            
             cell.playButton.setImage(#imageLiteral(resourceName: "pause") , for: UIControlState.normal)
         }
+    }
+    
+    struct SoundRecord {
+        var audioFilePathLocal: URL?
+        var meteringLevels: [Float]?
     }
     
     @IBAction func rewindForwardButtonPressed(_ sender: UIButton) {
@@ -643,13 +661,16 @@ extension VoiceTableViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let cell = tableView.cellForRow(at: indexPath) as! VoiceTableCellView
         
         if selectedCellIndexPath == indexPath {
             selectedCellIndexPath = nil
             stopAudioPlayer()
+            cell.separator.isHidden = false
         } else {
             selectedCellIndexPath = indexPath
             initAudioPlayer()
+            cell.separator.isHidden = true
         }
         
         tableView.beginUpdates()
@@ -749,9 +770,7 @@ extension VoiceTableViewController: AVAudioPlayerDelegate {
             } else {
                 print("File Not Avaliable")
             }
-            
         }
-        
     }
     
     func stopAudioPlayer() {

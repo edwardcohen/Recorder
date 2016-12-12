@@ -18,10 +18,7 @@ let developerErrorMessage = "There was an error in this code section. " +
 /// means for displaying and interacting with a gridstyle layout of date-cells
 open class JTAppleCalendarView: UIView {
 
-    lazy var dateGenerator: JTAppleDateConfigGenerator = {
-        var configurator = JTAppleDateConfigGenerator(delegate: self)
-        return configurator
-    }()
+    let dateGenerator = JTAppleDateConfigGenerator()
 
     /// Configures the behavior of the scrolling mode of the calendar
     public enum ScrollingMode {
@@ -39,7 +36,6 @@ open class JTAppleCalendarView: UIView {
             default: return false
             }
         }
-
     }
 
     var calendarIsAlreadyLoaded: Bool {
@@ -126,6 +122,7 @@ open class JTAppleCalendarView: UIView {
     
     var lastIndexOffset: (IndexPath, UICollectionElementCategory)?
     
+    /// Informs when change in orientation
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if calendarIsAlreadyLoaded {
             setMinVisibleDate()
@@ -240,19 +237,13 @@ open class JTAppleCalendarView: UIView {
         }
     }
 
-    // Configure the scrolling behavior
+    /// Configure the scrolling behavior
     open var scrollingMode: ScrollingMode = .stopAtEachCalendarFrameWidth {
         didSet {
             switch scrollingMode {
-            case .stopAtEachCalendarFrameWidth:
-                calendarView.decelerationRate =
-                UIScrollViewDecelerationRateFast
-            case .stopAtEach, .stopAtEachSection:
-                calendarView.decelerationRate =
-                UIScrollViewDecelerationRateFast
-            case .nonStopToSection, .nonStopToCell, .nonStopTo, .none:
-                calendarView.decelerationRate =
-                UIScrollViewDecelerationRateNormal
+            case .stopAtEachCalendarFrameWidth: calendarView.decelerationRate = UIScrollViewDecelerationRateFast
+            case .stopAtEach, .stopAtEachSection: calendarView.decelerationRate = UIScrollViewDecelerationRateFast
+            case .nonStopToSection, .nonStopToCell, .nonStopTo, .none: calendarView.decelerationRate = UIScrollViewDecelerationRateNormal
             }
             #if os(iOS)
                 switch scrollingMode {
@@ -293,12 +284,9 @@ open class JTAppleCalendarView: UIView {
         // Invalidate the layout
 
         // Default Item height
-        var height: CGFloat = (self.calendarView.bounds.size.height -
-            layout.headerReferenceSize.height) /
-            CGFloat(cachedConfiguration.numberOfRows)
+        var height: CGFloat = (self.calendarView.bounds.size.height - layout.headerReferenceSize.height) / CGFloat(cachedConfiguration.numberOfRows)
         // Default Item width
-        var width: CGFloat = self.calendarView.bounds.size.width /
-            CGFloat(maxNumberOfDaysInWeek)
+        var width: CGFloat = self.calendarView.bounds.size.width / CGFloat(maxNumberOfDaysInWeek)
 
         if let userSetItemSize = self.itemSize {
             if direction == .vertical {
@@ -398,16 +386,9 @@ open class JTAppleCalendarView: UIView {
             return nil
         }
         
-        var theTargetContentOffset: CGFloat = 0
-        if direction == .horizontal {
-            theTargetContentOffset = targetCellFrame.origin.x
-        } else {
-            theTargetContentOffset = targetCellFrame.origin.y
-        }
-        
-        var retval: CGRect?
-        
+        let theTargetContentOffset: CGFloat = direction == .horizontal ? targetCellFrame.origin.x : targetCellFrame.origin.y
         var fixedScrollSize: CGFloat = 0
+        var retval: CGRect?
         switch scrollingMode {
         case .stopAtEachSection, .stopAtEachCalendarFrameWidth:
             if self.direction == .horizontal || (self.direction == .vertical && !thereAreHeaders) {
@@ -465,10 +446,8 @@ open class JTAppleCalendarView: UIView {
                 layoutOffset = attributes.frame.origin.y
                 calendarOffset = calendarView.contentOffset.y
             }
-            if  calendarOffset == layoutOffset
-//                || (scrollingMode.pagingIsEnabled() && (indexPath.section ==  currentSectionPage)) 
-                {
-                    retval = true
+            if  calendarOffset == layoutOffset {
+                retval = true
             }
         }
         return retval
@@ -489,26 +468,6 @@ open class JTAppleCalendarView: UIView {
         self.orientation = orientation
         calendarView.transform.a = orientation == .leftToRight ? 1 : -1
         calendarView.reloadData()
-    }
-
-    func firstDayIndexForMonth(_ date: Date) -> Int {
-        let firstDayCalValue: Int
-        switch cachedConfiguration.firstDayOfWeek {
-        case .monday: firstDayCalValue = 6
-        case .tuesday: firstDayCalValue = 5
-        case .wednesday: firstDayCalValue = 4
-        case .thursday: firstDayCalValue = 10
-        case .friday: firstDayCalValue = 9
-        case .saturday: firstDayCalValue = 8
-        default: firstDayCalValue = 7
-        }
-        var firstWeekdayOfMonthIndex =
-            calendar.component(.weekday, from: date)
-        firstWeekdayOfMonthIndex -= 1
-        // firstWeekdayOfMonthIndex should be 0-Indexed
-        // push it modularly so that we take it back one day so that the
-        // first day is Monday instead of Sunday which is the default
-        return (firstWeekdayOfMonthIndex + firstDayCalValue) % 7
     }
 
     func scrollToHeaderInSection(_ section: Int,
@@ -938,6 +897,11 @@ extension JTAppleCalendarView {
         if indexPaths.count < 1 {
             return
         }
+        
+        // Before reloading, set the proposal path, 
+        // so that in the even targetContentOffset gets called. We know the path
+        setMinVisibleDate()
+        
         UICollectionView.performWithoutAnimation {
             self.calendarView.performBatchUpdates({
                 self.calendarView.reloadItems(at: indexPaths)
@@ -1054,7 +1018,7 @@ extension JTAppleCalendarView {
 //    func currentSection() -> Int? {
 //        return calendarViewLayout.sectionFromRectOffset(calendarView.contentOffset)
 //    }
-
+    /// Retrieves the current section
     public func currentSection() -> Int? {
         return minimumVisibleIndexPaths().cellInfo.indexPath?.section
     }

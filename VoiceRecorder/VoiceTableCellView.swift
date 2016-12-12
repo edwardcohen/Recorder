@@ -9,6 +9,7 @@
 import UIKit
 import MapKit
 import AVFoundation
+import SoundWave
 
 class VoiceTableCellView: UITableViewCell {
     
@@ -18,6 +19,8 @@ class VoiceTableCellView: UITableViewCell {
     @IBOutlet weak var dayLabel: UILabel!
     @IBOutlet weak var transcription: UILabel!
     @IBOutlet weak var playButton: UIButton!
+    @IBOutlet weak var waves: AudioVisualizationView!
+    @IBOutlet weak var separator: UIView!
     
     var tags = [String]()
     

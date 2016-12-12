@@ -24,10 +24,23 @@ func delayRunOnGlobalThread(_ delay: Double,
 }
 
 extension Date {
+    static let formatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy MM dd"
+        return dateFormatter
+    }()
     static func startOfMonth(for date: Date, using calendar: Calendar) -> Date? {
-        let dayOneComponents = calendar.dateComponents([.era, .year, .month, .day, .hour], from: date)
-        return calendar.date(from: dayOneComponents)
+        let dayOneComponents = calendar.dateComponents([.year, .month], from: date)
+        
+        guard
+            let month = dayOneComponents.month,
+            let year = dayOneComponents.year else {
+                return nil
+        }
+        
+        return Date.formatter.date(from: "\(year) \(month) 01")
     }
+    
     static func endOfMonth(for date: Date, using calendar: Calendar) -> Date? {
         var lastDayComponents = calendar.dateComponents([.era, .year, .month, .day, .hour], from: date)
         lastDayComponents.month = lastDayComponents.month! + 1

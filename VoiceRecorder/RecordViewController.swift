@@ -57,6 +57,7 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
     var displayLink: CADisplayLink!
     let customPresentAnimationController = CustomPresentAnimationController()
     var currentTitle = "How was your day?"
+    var metering: [Float] = []
     
     override func viewDidLoad() {
         view.backgroundColor = UIColor.recordBlack
@@ -133,12 +134,16 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
     }
     
     func updateMeters() {
-        
-//        if audioRecorder != nil {
-//            audioRecorder.updateMeters()
-//            let normalizedValue:CGFloat = 1.0 - pow(10, CGFloat(audioRecorder.averagePowerForChannel(0))/20)
-////            audioWaveformView.amplitude = normalizedValue
-//        }
+        if audioRecorder != nil {
+            audioRecorder.updateMeters()
+//            let normalizedValue: CGFloat = 1.0 - pow(10, CGFloat(audioRecorder.averagePower(forChannel: 0))/20)
+            let dblevel = audioRecorder.averagePower(forChannel: 0)
+            let normalizedValue = CGFloat( pow(10.0, (0.05 * dblevel)))
+            metering.append(Float(normalizedValue))
+//            metering.append(Double(normalizedValue))
+            print("normalize \(normalizedValue)")
+//            audioWaveformView.amplitude = normalizedValue
+        }
     }
     
     @IBAction func handleDelete() {
@@ -323,6 +328,7 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
     func startRecording() {
         let filename = NSUUID().uuidString + ".m4a"
         audioFileURL = getDocumentsDirectoryURL().appendingPathComponent(filename)
+        
         timerLabel.isHidden = false
         let settings = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
@@ -337,6 +343,7 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
             try recordingSession.setActive(true, with:AVAudioSessionSetActiveOptions.notifyOthersOnDeactivation)
             audioRecorder = try AVAudioRecorder(url: audioFileURL!, settings: settings)
             audioRecorder.delegate = self
+            audioRecorder.isMeteringEnabled = true
             audioRecorder.record(forDuration: Constants.MainParameters.durations)
             audioRecorder.prepareToRecord()
             audioRecorder.record()
@@ -555,7 +562,7 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
 
         spinner.startAnimating()
         
-        var voice:Voice!
+        var voice: Voice!
         
         if let managedObjectContext = (UIApplication.shared.delegate as? AppDelegate)?.managedObjectContext {
             voice = NSEntityDescription.insertNewObject(forEntityName: "Voice", into: managedObjectContext) as! Voice
@@ -567,6 +574,7 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
             voice.date = date
             voice.audio = audio as NSURL
             voice.transcript = trans
+            voice.metering = metering
 //            saveRecordToCloud(voice)
 
             do {
@@ -635,6 +643,7 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
         record.setValue(voice.marks, forKey: "marks")
         record.setValue(voice.date, forKey: "date")
         record.setValue(voice.transcript, forKey: "transcript")
+        //TODO: - add metering
         // Create audio asset for upload
         let audioAsset = CKAsset(fileURL: voice.audio as URL)
         record.setValue(audioAsset, forKey: "audio")

@@ -107,6 +107,7 @@ struct CalendarData {
     var totalDays: Int
 }
 
+/// Defines a month structure.
 public struct Month {
 
     /// Start index day for the month.
@@ -252,15 +253,8 @@ public struct Month {
 //    }
 }
 
-
-
 struct JTAppleDateConfigGenerator {
-    weak var delegate: JTAppleCalendarDelegateProtocol?
-    init(delegate: JTAppleCalendarDelegateProtocol) {
-        self.delegate = delegate
-    }
-
-    mutating func setupMonthInfoDataForStartAndEndDate(_ parameters: ConfigurationParameters)
+    func setupMonthInfoDataForStartAndEndDate(_ parameters: ConfigurationParameters)
         -> (months: [Month], monthMap: [Int: Int], totalSections: Int, totalDays: Int) {
             let differenceComponents = parameters.calendar.dateComponents([.month], from: parameters.startDate, to: parameters.endDate)
             let numberOfMonths = differenceComponents.month! + 1
@@ -275,18 +269,16 @@ struct JTAppleDateConfigGenerator {
             let numberOfRowsPerSectionThatUserWants = parameters.numberOfRows
             // Section represents # of months. section is used as an offset
             // to determine which month to calculate
-            guard let nonNilDelegate = delegate else {
-                return ([], [:], 0, 0 )
-            }
+
             for monthIndex in 0 ..< numberOfMonths {
-                if let currentMonth = parameters.calendar.date(byAdding: .month, value: monthIndex, to: parameters.startDate) {
-                    var numberOfDaysInMonthVariable = parameters.calendar.range(of: .day, in: .month, for: currentMonth)!.count
+                if let currentMonthDate = parameters.calendar.date(byAdding: .month, value: monthIndex, to: parameters.startDate) {
+                    var numberOfDaysInMonthVariable = parameters.calendar.range(of: .day, in: .month, for: currentMonthDate)!.count
                     let numberOfDaysInMonthFixed = numberOfDaysInMonthVariable
                     var numberOfRowsToGenerateForCurrentMonth = 0
                     var numberOfPreDatesForThisMonth = 0
-                    let predatesGeneration = nonNilDelegate.preDatesAreGenerated()
+                    let predatesGeneration = parameters.generateInDates
                     if predatesGeneration != .off {
-                        numberOfPreDatesForThisMonth = nonNilDelegate.numberOfPreDatesForMonth(currentMonth)
+                        numberOfPreDatesForThisMonth = numberOfPreDatesForMonth(currentMonthDate, firstDayOfWeek: parameters.firstDayOfWeek, calendar: parameters.calendar)
                         numberOfDaysInMonthVariable += numberOfPreDatesForThisMonth
                         if predatesGeneration == .forFirstMonthOnly && monthIndex != 0 {
                             numberOfDaysInMonthVariable -= numberOfPreDatesForThisMonth
@@ -301,7 +293,7 @@ struct JTAppleDateConfigGenerator {
                         numberOfRowsToGenerateForCurrentMonth = actualNumberOfRowsForThisMonth
                     }
                     var numberOfPostDatesForThisMonth = 0
-                    let postGeneration = nonNilDelegate.postDatesAreGenerated()
+                    let postGeneration = parameters.generateOutDates
                     switch postGeneration {
                     case .tillEndOfGrid, .tillEndOfRow:
                         numberOfPostDatesForThisMonth =
@@ -344,7 +336,26 @@ struct JTAppleDateConfigGenerator {
             }
             return (monthArray, monthIndexMap, section, totalDays)
     }
-
+    
+    private func numberOfPreDatesForMonth(_ date: Date, firstDayOfWeek: DaysOfWeek, calendar: Calendar) -> Int {
+        let firstDayCalValue: Int
+        switch firstDayOfWeek {
+        case .monday: firstDayCalValue = 6
+        case .tuesday: firstDayCalValue = 5
+        case .wednesday: firstDayCalValue = 4
+        case .thursday: firstDayCalValue = 10
+        case .friday: firstDayCalValue = 9
+        case .saturday: firstDayCalValue = 8
+        default: firstDayCalValue = 7
+        }
+        
+        var firstWeekdayOfMonthIndex = calendar.component(.weekday, from: date)
+        firstWeekdayOfMonthIndex -= 1
+        // firstWeekdayOfMonthIndex should be 0-Indexed
+        // push it modularly so that we take it back one day so that the
+        // first day is Monday instead of Sunday which is the default
+        return (firstWeekdayOfMonthIndex + firstDayCalValue) % maxNumberOfDaysInWeek
+    }
 }
 
 /// Contains the information for visible dates of the calendar.

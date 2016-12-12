@@ -20,13 +20,8 @@ protocol JTAppleCalendarDelegateProtocol: class {
     func hasStrictBoundaries() -> Bool
     func cachedDate() -> (start: Date, end: Date, calendar: Calendar)
     func numberOfMonthsInCalendar() -> Int
-    func numberOfPreDatesForMonth(_ month: Date) -> Int
-
     func referenceSizeForHeaderInSection(_ section: Int) -> CGSize
-    func firstDayIndexForMonth(_ date: Date) -> Int
     func rowsAreStatic() -> Bool
-    func preDatesAreGenerated() -> InDateCellGeneration
-    func postDatesAreGenerated() -> OutDateCellGeneration
 }
 
 extension JTAppleCalendarView: JTAppleCalendarDelegateProtocol {
@@ -47,18 +42,6 @@ extension JTAppleCalendarView: JTAppleCalendarDelegateProtocol {
 
     func numberOfMonthsInCalendar() -> Int {
         return numberOfMonths
-    }
-
-    func numberOfPreDatesForMonth(_ month: Date) -> Int {
-        return firstDayIndexForMonth(month)
-    }
-
-    func preDatesAreGenerated() -> InDateCellGeneration {
-        return cachedConfiguration.generateInDates
-    }
-
-    func postDatesAreGenerated() -> OutDateCellGeneration {
-        return cachedConfiguration.generateOutDates
     }
 
     func referenceSizeForHeaderInSection(_ section: Int) -> CGSize {

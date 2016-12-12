@@ -19,6 +19,7 @@ class Voice: NSManagedObject {
     @NSManaged var date: NSDate
     @NSManaged var location: CLLocation
     @NSManaged var audio: NSURL
+    @NSManaged var metering: [Float]
 
 //    init(title: String?, length: Int, date: NSDate, tags: [String]?, location: CLLocation, marks: [Int]?, audio: NSURL) {
 //        self.title = title
