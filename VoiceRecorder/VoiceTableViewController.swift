@@ -208,8 +208,8 @@ class VoiceTableViewController: UIViewController {
             cell.playButton.setImage(#imageLiteral(resourceName: "play") , for: UIControlState.normal)
         } else {
             player.play()
-            let data = voiceRecords[selectedCellIndexPath.row]
-            let record = SoundRecord(audioFilePathLocal: player.url, meteringLevels: data.metering)
+//            let data = voiceRecords[selectedCellIndexPath.row]
+//            let record = SoundRecord(audioFilePathLocal: player.url, meteringLevels: data.metering)
            // player.updateMeters()
 //            let array = record.meteringLevels!.map({ $0 * Float(10)})
 //            cell.waves.meteringLevels = array
