@@ -89,7 +89,7 @@ class VoiceTableViewController: UIViewController {
     }
     
     @IBAction func onClickMonthButton(sender: AnyObject) {
-        
+        collapseCalendar()
         let monthName = DateFormatter().monthSymbols[(selectedMonth!-1) % 12]
         monthButton.setTitle(monthName, for: UIControlState.normal)
         
@@ -666,11 +666,9 @@ extension VoiceTableViewController: UITableViewDelegate {
         if selectedCellIndexPath == indexPath {
             selectedCellIndexPath = nil
             stopAudioPlayer()
-            cell.separator.isHidden = false
         } else {
             selectedCellIndexPath = indexPath
             initAudioPlayer()
-            cell.separator.isHidden = true
         }
         
         tableView.beginUpdates()
