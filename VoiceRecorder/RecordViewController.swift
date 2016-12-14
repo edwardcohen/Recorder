@@ -16,7 +16,7 @@ import KDCircularProgress
 //import SwiftSiriWaveformView
 import SoundWave
 
-class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,UIViewControllerTransitioningDelegate, AVAudioRecorderDelegate, CLLocationManagerDelegate  {
+class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate,UIViewControllerTransitioningDelegate, AVAudioRecorderDelegate, CLLocationManagerDelegate  {
    
     @IBOutlet var recordButton: UIButton!
     @IBOutlet var transTextView: UITextView!
@@ -61,18 +61,11 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
     var currentTitle = "How was your day?"
     var metering: [Float] = []
     
-    let viewModel = ViewModel()
-    private var chronometer: Chronometer?
-    var audioVisualizationView: AudioVisualizationView!
     private var audioMeteringLevelTimer: Timer?
     
     override func viewDidLoad() {
-        view.backgroundColor = UIColor.recordBlack
+        view.backgroundColor = .recordBlack
         viewCenterRecord.layer.cornerRadius = 27.5
-        
-        tagView.delegate = self
-        tagView.dataSource = self
-    
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM dd, yyyy"
         let now = dateFormatter.string(from: Date())
@@ -118,11 +111,6 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
         do {
             try recordingSession.setCategory(AVAudioSessionCategoryPlayAndRecord, with:.defaultToSpeaker)
             try recordingSession.setActive(true)
-            //            try recordingSession.setCategory(AVAudioSessionCategoryRecord)
-            try recordingSession.setMode(AVAudioSessionModeMeasurement)
-//            try recordingSession.setCategory(AVAudioSessionCategoryRecord)
-//            try recordingSession.setMode(AVAudioSessionModeMeasurement)
-//            try recordingSession.setActive(true, with:AVAudioSessionSetActiveOptions.notifyOthersOnDeactivation)
             recordingSession.requestRecordPermission() { [unowned self] (allowed: Bool) -> Void in
                 DispatchQueue.main.async {
                     if !allowed {
@@ -132,22 +120,6 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
             }
         } catch {
             showErrorMessage(message: "Failed to configure AVAudioSession!")
-        }
-        // ModelView
-        self.viewModel.askAudioRecordingPermission { granted in
-            print("user answered permission with \(granted ? "positive" : "negative") response")
-        }
-        
-        self.viewModel.audioMeteringLevelUpdate = { [weak self] meteringLevel in
-            guard let this = self, this.audioVisualizationView.audioVisualizationMode == .write else {
-                return
-            }
-            this.audioVisualizationView.addMeteringLevel(meteringLevel)
-        }
-        
-        self.viewModel.audioDidFinish = { [weak self] _ in
-//            self?.currentState = .recorded
-            self?.audioVisualizationView.stop()
         }
     }
     
@@ -165,23 +137,11 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
     
     func updateMeters() {
         if audioRecorder != nil {
-//            audioRecorder.updateMeters()
-////            let normalizedValue: CGFloat = 1.0 - pow(10, CGFloat(audioRecorder.averagePower(forChannel: 0))/20)
-//            let dblevel = audioRecorder.averagePower(forChannel: 0)
-//            let normalizedValue = Float( pow(10, (0.05 * dblevel)))
-//            metering.append(Float(normalizedValue))
-////            metering.append(Double(normalizedValue))
-//            print("normalize \(normalizedValue)")
-//            audioWaveformView.amplitude = normalizedValue
-//            let averagePower = recorder!.averagePower(forChannel: 0)
-//            let percentage: Float = pow(10, (0.05 * averagePower))
-//            if self.isRunning {
-                self.audioRecorder!.updateMeters()
-                let averagePower = audioRecorder!.averagePower(forChannel: 0)
-                let percentage: Float = pow(10, (0.05 * averagePower))
+            self.audioRecorder!.updateMeters()
+            let averagePower = audioRecorder!.averagePower(forChannel: 0)
+            let percentage: Float = pow(10, (0.05 * averagePower))
             print("metering - \(percentage)")
-//                NotificationCenter.default.post(name: .audioRecorderManagerMeteringLevelDidUpdateNotification, object: self, userInfo: [audioPercentageUserInfoKey: percentage])
-//            }
+            metering.append(percentage)
         }
     }
     
@@ -230,7 +190,6 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
             if recordState == RecordState.None {
                 
                 startRecording()
-//                newRecord()
                 SpeechTotextConversion()
                 
               if self.displayLink.isPaused == true {
@@ -264,29 +223,12 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
                 self.displayLink.isPaused = true
                 audioRecorder.pause()
                 recordingTimer.invalidate()
+                audioMeteringLevelTimer?.invalidate()
                 recordState = RecordState.Pause
                 updateUI()
             }
         default:
             print("other event at long press")
-        }
-    }
-    
-    func newRecord() {
-        self.viewModel.startRecording { [weak self] soundRecord, error in
-            if let error = error {
-                print("an error occurred when trying to record sound: \(error.localizedDescription)")
-                return
-            }
-            if let url = self?.viewModel.currentAudioRecord?.audioFilePathLocal {
-                let urlString = try! String(contentsOf: url) + ".m4a"
-                self?.audioFileURL1 = URL(string: urlString)
-            }
-//            self?.startRecording()
-//            self?.currentState = .recording
-            
-            self?.chronometer = Chronometer()
-            self?.chronometer?.start()
         }
     }
     
@@ -426,9 +368,6 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
         do {
             try recordingSession.setCategory(AVAudioSessionCategoryPlayAndRecord, with:.defaultToSpeaker)
             try recordingSession.setActive(true)
-//            try recordingSession.setCategory(AVAudioSessionCategoryRecord)
-            try recordingSession.setMode(AVAudioSessionModeMeasurement)
-//            try recordingSession.setActive(true, with:AVAudioSessionSetActiveOptions.notifyOthersOnDeactivation)
             audioRecorder = try AVAudioRecorder(url: audioFileURL!, settings: settings)
             audioRecorder.delegate = self
             audioRecorder.isMeteringEnabled = true
@@ -438,11 +377,11 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
             timerCount = 0
             recordingTimer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(timerUpdate), userInfo: nil, repeats: true)
             timerUpdate()
+            metering.removeAll()
             self.audioMeteringLevelTimer = Timer.scheduledTimer(timeInterval: 0.05, target: self, selector: #selector(updateMeters), userInfo: nil, repeats: true)
         } catch {
             abortRecording()
         }
-
     }
     
     func SpeechTotextConversion() {
@@ -514,12 +453,12 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
         recordingTimer.invalidate()
         audioRecorder = nil
         self.audioMeteringLevelTimer?.invalidate()
-        self.audioMeteringLevelTimer = nil
     }
     
     func abortRecording() {
         audioRecorder.stop()
         recordingTimer.invalidate()
+        self.audioMeteringLevelTimer?.invalidate()
         showErrorMessage(message: "Recorder did finish recording unsuccessfully")
         audioRecorder = nil
         timerCount = 0
@@ -667,7 +606,7 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
             voice.date = date
             voice.audio = audio as NSURL
             voice.transcript = trans
-//            voice.metering = metering
+            voice.metering = metering
 //            saveRecordToCloud(voice)
 
             do {
@@ -797,7 +736,6 @@ class RecordViewController: UIViewController,NSFetchedResultsControllerDelegate,
 }
 
 extension RecordViewController: UICollectionViewDataSource {
-    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return tags.count
     }
@@ -812,7 +750,6 @@ extension RecordViewController: UICollectionViewDataSource {
 }
 
 extension RecordViewController: UICollectionViewDelegate {
-    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if tags[indexPath.item] == "+" {
             var tagTextField: UITextField?
@@ -837,14 +774,12 @@ extension RecordViewController: UICollectionViewDelegate {
 }
 
 extension RecordViewController: ScrollViewRenewable {
-    
     func renew() {
         updateUI()
     }
 }
 
 extension RecordViewController: SFSpeechRecognizerDelegate {
-   
     func speechRecognizer(_ speechRecognizer: SFSpeechRecognizer, availabilityDidChange available: Bool) {
         self.isconverstionActive = available
     }

@@ -48,7 +48,7 @@ public class AudioVisualizationView: BaseNibView {
 		return meteringLevelsArray
 	}
 
-	private var playChronometer: Chronometer?
+    var playChronometer: Chronometer?
 
 	public var meteringLevels: [Float]? {
 		didSet {
@@ -105,7 +105,7 @@ public class AudioVisualizationView: BaseNibView {
 		self.setNeedsDisplay()
 	}
 
-	public func scaleSoundDataToFitScreen() -> [Float] {
+    public func scaleSoundDataToFitScreen() -> [Float] {
 		if self.meteringLevelsArray.isEmpty {
 			return []
 		}

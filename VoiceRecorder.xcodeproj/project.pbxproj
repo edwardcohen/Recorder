@@ -27,7 +27,7 @@
 		8BD250951D9EBAC10000E359 /* Pods_VoiceRecorder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3128D151D2541D5560030952 /* Pods_VoiceRecorder.framework */; };
 		8BFF2CA61D537C9000D84BF2 /* VoiceTableCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFF2CA51D537C9000D84BF2 /* VoiceTableCellView.swift */; };
 		E5E953A61DF04F480089294D /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5E953A51DF04F480089294D /* Extensions.swift */; };
-		FA0897631E00171400FBB052 /* VoiceRecorder.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FA0897611E00171400FBB052 /* VoiceRecorder.xcdatamodeld */; };
+		FA08EE2C1E01883400855F2F /* VoiceRecorder.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FA08EE2A1E01883400855F2F /* VoiceRecorder.xcdatamodeld */; };
 		FA226C871DF9413400421E37 /* SF-UI-Display-Black.otf in Resources */ = {isa = PBXBuildFile; fileRef = FA226C7E1DF9413400421E37 /* SF-UI-Display-Black.otf */; };
 		FA226C881DF9413400421E37 /* SF-UI-Display-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = FA226C7F1DF9413400421E37 /* SF-UI-Display-Bold.otf */; };
 		FA226C891DF9413400421E37 /* SF-UI-Display-Heavy.otf in Resources */ = {isa = PBXBuildFile; fileRef = FA226C801DF9413400421E37 /* SF-UI-Display-Heavy.otf */; };
@@ -87,7 +87,7 @@
 		8BFA25831D523C2E00821EEC /* VoiceRecorder.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = VoiceRecorder.entitlements; sourceTree = "<group>"; };
 		8BFF2CA51D537C9000D84BF2 /* VoiceTableCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VoiceTableCellView.swift; sourceTree = "<group>"; };
 		E5E953A51DF04F480089294D /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
-		FA0897621E00171400FBB052 /* VoiceRecorder.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = VoiceRecorder.xcdatamodel; sourceTree = "<group>"; };
+		FA08EE2B1E01883400855F2F /* VoiceRecorder.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = VoiceRecorder.xcdatamodel; sourceTree = "<group>"; };
 		FA226C7E1DF9413400421E37 /* SF-UI-Display-Black.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-UI-Display-Black.otf"; sourceTree = "<group>"; };
 		FA226C7F1DF9413400421E37 /* SF-UI-Display-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-UI-Display-Bold.otf"; sourceTree = "<group>"; };
 		FA226C801DF9413400421E37 /* SF-UI-Display-Heavy.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-UI-Display-Heavy.otf"; sourceTree = "<group>"; };
@@ -231,7 +231,7 @@
 			children = (
 				8B02750F1D54DEF600983BF5 /* Voice.swift */,
 				FA8DF8611DFAFD8900BB00B3 /* ViewModel.swift */,
-				FA0897611E00171400FBB052 /* VoiceRecorder.xcdatamodeld */,
+				FA08EE2A1E01883400855F2F /* VoiceRecorder.xcdatamodeld */,
 				8BFA25831D523C2E00821EEC /* VoiceRecorder.entitlements */,
 			);
 			name = Model;
@@ -503,7 +503,7 @@
 				FA8DF86B1DFAFDC900BB00B3 /* SoundWave+Helpers.swift in Sources */,
 				FA7CDD2A1DF1751B0051C87E /* Constants.swift in Sources */,
 				8B02750C1D54D92A00983BF5 /* VoiceDetailViewController.swift in Sources */,
-				FA0897631E00171400FBB052 /* VoiceRecorder.xcdatamodeld in Sources */,
+				FA08EE2C1E01883400855F2F /* VoiceRecorder.xcdatamodeld in Sources */,
 				FA8DF86A1DFAFDC900BB00B3 /* AudioErrorType.swift in Sources */,
 				FA7CDD2C1DF17A7B0051C87E /* MapViewController.swift in Sources */,
 				8B09A6E91D5B606500EBF853 /* TagCellView.swift in Sources */,
@@ -694,12 +694,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		FA0897611E00171400FBB052 /* VoiceRecorder.xcdatamodeld */ = {
+		FA08EE2A1E01883400855F2F /* VoiceRecorder.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				FA0897621E00171400FBB052 /* VoiceRecorder.xcdatamodel */,
+				FA08EE2B1E01883400855F2F /* VoiceRecorder.xcdatamodel */,
 			);
-			currentVersion = FA0897621E00171400FBB052 /* VoiceRecorder.xcdatamodel */;
+			currentVersion = FA08EE2B1E01883400855F2F /* VoiceRecorder.xcdatamodel */;
 			path = VoiceRecorder.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

@@ -24,10 +24,9 @@ class VoiceTableViewController: UIViewController {
     var selectedYear : Int?
     var taptoHidekeyBoard : UITapGestureRecognizer?
     var scrollView: UIScrollView?
-    var searchArray : NSMutableArray!
+    var searchArray: [Voice] = []
     var audioPlayer: AVAudioPlayer?
-    var session:AVAudioSession?
-    
+    var session: AVAudioSession?
     let formatter = DateFormatter()
     var calendar  = Calendar(identifier: Calendar.Identifier.gregorian)
     var tags = [String]()
@@ -35,7 +34,7 @@ class VoiceTableViewController: UIViewController {
     
     @IBOutlet weak var buttonsView: UIView!
     @IBOutlet weak var searchBar: UISearchBar!
-    @IBOutlet weak var monthButton: UIButton!
+    @IBOutlet weak var monthLabel: UILabel!
     @IBOutlet weak var collapseCalendarButton: UIButton!
     @IBOutlet weak var calendarView: JTAppleCalendarView!
     @IBOutlet weak var tableView: UITableView!
@@ -59,13 +58,15 @@ class VoiceTableViewController: UIViewController {
         let font = UIFont(name: "SFUIDisplay-Regular", size: 14)
         textFieldInsideSearchBar?.font = font
         
+        let tap = UITapGestureRecognizer(target: self, action: #selector(collapseCalendar))
+        monthLabel.addGestureRecognizer(tap)
+        
         tableView.delegate = self
         tableView.dataSource = self
         tableView.estimatedRowHeight = 65
         tableView.rowHeight = UITableViewAutomaticDimension
-        
         view.backgroundColor = .recordBlack
-        
+
         taptoHidekeyBoard = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         taptoHidekeyBoard?.numberOfTapsRequired = 1
     }
@@ -75,14 +76,11 @@ class VoiceTableViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        
         self.tableView.rowHeight = UITableViewAutomaticDimension
-        
         spinner.hidesWhenStopped = true
         spinner.center = view.center
         view.addSubview(spinner)
-        
-        tableView.backgroundColor = UIColor.clear
+        tableView.backgroundColor = .clear
         
         renew()
 //        collapseCalendarWithoutAnimation()
@@ -91,7 +89,7 @@ class VoiceTableViewController: UIViewController {
     @IBAction func onClickMonthButton(sender: AnyObject) {
         collapseCalendar()
         let monthName = DateFormatter().monthSymbols[(selectedMonth!-1) % 12]
-        monthButton.setTitle(monthName, for: UIControlState.normal)
+        monthLabel.text = monthName
         
         let components = calendar.dateComponents([.year, .month], from: selectedDate!)
         let startOfMonth = calendar.date(from: components)!
@@ -117,8 +115,7 @@ class VoiceTableViewController: UIViewController {
     }
     
     //MARK: Actions
-    
-    @IBAction func onBtnCollapseCallender() {
+    @IBAction func collapseCallendar(_ sender: UIButton) {
         collapseCalendar()
     }
     
@@ -205,20 +202,19 @@ class VoiceTableViewController: UIViewController {
         player.delegate = self
         if player.isPlaying {
             player.pause()
+            cell.waves.pause()
             cell.playButton.setImage(#imageLiteral(resourceName: "play") , for: UIControlState.normal)
         } else {
+            let data = voiceRecords[selectedCellIndexPath.row]
+            cell.waves.reset()
+            cell.waves.meteringLevelsArray.append(contentsOf: data.metering)
+            cell.waves.meteringLevels = cell.waves.scaleSoundDataToFitScreen()
+            cell.waves.audioVisualizationMode = .read
+            cell.waves.meteringLevelBarWidth = 1.0
+            cell.waves.gradientStartColor = UIColor.hex(hex: "#686868")
+            cell.waves.gradientEndColor = .white
+            cell.waves.play(for: TimeInterval(data.length.floatValue + 5))
             player.play()
-//            let data = voiceRecords[selectedCellIndexPath.row]
-//            let record = SoundRecord(audioFilePathLocal: player.url, meteringLevels: data.metering)
-           // player.updateMeters()
-//            let array = record.meteringLevels!.map({ $0 * Float(10)})
-//            cell.waves.meteringLevels = array
-////                record.meteringLevels
-//            cell.waves.audioVisualizationMode = .read
-//            cell.waves.meteringLevelBarWidth = 1.0
-//            cell.waves.gradientStartColor = .black
-//            cell.waves.gradientEndColor = .white
-//            cell.waves.play(for: TimeInterval(data.length.floatValue))
             
             cell.playButton.setImage(#imageLiteral(resourceName: "pause") , for: UIControlState.normal)
         }
@@ -266,7 +262,7 @@ class VoiceTableViewController: UIViewController {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM dd, yyyy"
         let selected = dateFormatter.string(from: keptDate)
-        monthButton.setTitle(selected, for: UIControlState.normal)
+        monthLabel.text = selected
         calendarView.selectDates([keptDate])
     }
     
@@ -317,7 +313,7 @@ class VoiceTableViewController: UIViewController {
             do {
                 try fetchResultController.performFetch()
                 voiceRecords = fetchResultController.fetchedObjects as! [Voice]
-                searchArray = NSMutableArray.init(array: voiceRecords)
+                searchArray = voiceRecords
                 print("Retrived data from core data")
                 completionHandler(true)
             } catch {
@@ -325,7 +321,6 @@ class VoiceTableViewController: UIViewController {
                 completionHandler(false)
             }
         }
-        
     }
     
     func getTagsFromRecords() {
@@ -358,7 +353,6 @@ class VoiceTableViewController: UIViewController {
     }
     
     // MARK: - Navigation
-    
     func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "showVoiceDetail" {
             if let indexPath = tableView.indexPathForSelectedRow {
@@ -585,7 +579,7 @@ extension VoiceTableViewController: JTAppleCalendarViewDelegate {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM dd, yyyy"
         let selected = dateFormatter.string(from: date)
-        monthButton.setTitle(selected, for: UIControlState.normal)
+        monthLabel.text = selected
         selectedDate = endOfDay
         
         let predicate = NSPredicate(format: "(date >= %@) AND (date <=%@)", argumentArray: [startOfDay, endOfDay!])
@@ -639,7 +633,7 @@ extension VoiceTableViewController: UITableViewDataSource {
         cell.backgroundColor = .clear
         
         let backgroundView = UIView()
-        backgroundView.backgroundColor = UIColor.clear
+        backgroundView.backgroundColor = .clear
         cell.selectedBackgroundView = backgroundView
         
         return cell
@@ -661,11 +655,11 @@ extension VoiceTableViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let cell = tableView.cellForRow(at: indexPath) as! VoiceTableCellView
-        
+        let cell = tableView.cellForRow(at: indexPath) as? VoiceTableCellView
         if selectedCellIndexPath == indexPath {
             selectedCellIndexPath = nil
             stopAudioPlayer()
+            cell?.waves.reset()
         } else {
             selectedCellIndexPath = indexPath
             initAudioPlayer()
@@ -674,8 +668,13 @@ extension VoiceTableViewController: UITableViewDelegate {
         tableView.beginUpdates()
         tableView.deselectRow(at: indexPath, animated: false)
         tableView.endUpdates()
-        
         // self.tableView.reloadData()
+    }
+    
+    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        let cell = tableView.cellForRow(at: indexPath) as? VoiceTableCellView
+        cell?.waves.reset()
+        audioPlayer?.pause()
     }
 }
 
@@ -812,11 +811,8 @@ extension VoiceTableViewController: AVAudioPlayerDelegate {
 }
 
 extension VoiceTableViewController: ScrollViewRenewable {
-    
     func renew() {
-        
         spinner.startAnimating()
-        
         getVoiceRecordsFromCoreData() { [unowned self] (success: Bool) -> Void in
             if success {
                 OperationQueue.main.addOperation() {
@@ -856,5 +852,4 @@ extension VoiceTableViewController: ScrollViewRenewable {
         self.calendarViewHeightContraint.constant = 0
         self.view.layoutIfNeeded()
     }
-    
 }

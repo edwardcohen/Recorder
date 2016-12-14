@@ -84,9 +84,5 @@ extension ContainerViewController: UIScrollViewDelegate {
         }
         
         print("updatePresentingController: \(currentPage)")
-        
     }
-    
-    
-    
 }

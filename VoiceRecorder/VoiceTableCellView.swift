@@ -22,28 +22,19 @@ class VoiceTableCellView: UITableViewCell {
     @IBOutlet weak var waves: AudioVisualizationView!
     @IBOutlet weak var separator: UIView!
     
-    var tags = [String]()
-    
+    var tags: [String] = []
     var sizingCell: TagCellView?
-    
-    var voiceFileURL : NSURL?
-    
+    var voiceFileURL: NSURL?
     var audioPlayer: AVAudioPlayer?
-    
     var timer: Timer?
-    
-    var session:AVAudioSession?
-    
+    var session: AVAudioSession?
     var isPlaying = false
     
 //    @IBOutlet var tagView: UICollectionView!
 //    @IBOutlet weak var mapView: MKMapView!
 //    @IBOutlet weak var progressView: UIProgressView!
 //    @IBOutlet weak var playButton: UIButton!
-    
-    
 //    @IBOutlet weak var detailView: UIView!
-    
     var voiceRecord: Voice? {
         didSet {
             if let voiceRecord = voiceRecord {

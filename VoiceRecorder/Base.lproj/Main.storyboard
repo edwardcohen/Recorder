@@ -34,21 +34,17 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HhJ-aj-zCu" userLabel="Month Button">
-                                <rect key="frame" x="26" y="83" width="249" height="55"/>
+                            <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="August" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8n1-Sd-Xj4">
+                                <rect key="frame" x="26" y="70" width="249" height="36"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="249" id="AQY-Un-QCi"/>
+                                    <constraint firstAttribute="height" constant="36" id="Uef-J1-vXi"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" name="SFUIDisplay-Bold" family="SF UI Display" pointSize="36"/>
-                                <state key="normal" title="August">
-                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="onClickMonthButtonWithSender:" destination="BYZ-38-t0r" eventType="touchUpInside" id="VH7-7H-Kvr"/>
-                                </connections>
-                            </button>
+                                <fontDescription key="fontDescription" name="SFUIDisplay-Bold" family="SF UI Display" pointSize="32"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="top" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2QG-VE-m4v" userLabel="Year Button">
-                                <rect key="frame" x="326" y="94.5" width="32" height="32"/>
+                                <rect key="frame" x="317" y="72" width="32" height="32"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="32" id="0bX-mC-EfP"/>
                                     <constraint firstAttribute="width" constant="32" id="FlC-pM-mz2"/>
@@ -57,11 +53,11 @@
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <action selector="onBtnCollapseCallender" destination="BYZ-38-t0r" eventType="touchUpInside" id="KWa-7p-Jhe"/>
+                                    <action selector="collapseCallendar:" destination="BYZ-38-t0r" eventType="touchUpInside" id="YVl-a9-eXh"/>
                                 </connections>
                             </button>
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="Ik7-d5-Fp7">
-                                <rect key="frame" x="16" y="143" width="343" height="20.5"/>
+                                <rect key="frame" x="16" y="111" width="343" height="20.5"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" alpha="0.80000000000000004" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="S" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a95-i7-kdE">
                                         <rect key="frame" x="0.0" y="0.0" width="49" height="20.5"/>
@@ -110,7 +106,7 @@
                                 <color key="tintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </stackView>
                             <view opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZTy-ss-Xhd" customClass="JTAppleCalendarView" customModule="JTAppleCalendar">
-                                <rect key="frame" x="16" y="163.5" width="343" height="200"/>
+                                <rect key="frame" x="16" y="131.5" width="343" height="200"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
@@ -118,7 +114,7 @@
                                 </constraints>
                             </view>
                             <tableView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="200" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="g2D-n0-eoT">
-                                <rect key="frame" x="16" y="363.5" width="343" height="284.5"/>
+                                <rect key="frame" x="16" y="331.5" width="343" height="316.5"/>
                                 <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 <inset key="separatorInset" minX="15" minY="0.0" maxX="15" maxY="0.0"/>
                                 <prototypes>
@@ -136,14 +132,14 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EYU-mk-zTa">
-                                                    <rect key="frame" x="10" y="40" width="34.5" height="16"/>
+                                                    <rect key="frame" x="10" y="35" width="34.5" height="16"/>
                                                     <fontDescription key="fontDescription" name="SFUIDisplay-Light" family="SF UI Display" pointSize="13"/>
-                                                    <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <color key="textColor" red="0.88627450980392153" green="0.88627450980392153" blue="0.88627450980392153" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="NOV" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SWP-E2-mak" userLabel="Date">
-                                                    <rect key="frame" x="279" y="0.0" width="38" height="23"/>
-                                                    <fontDescription key="fontDescription" name="SFUIDisplay-Light" family="SF UI Display" pointSize="19"/>
+                                                    <rect key="frame" x="285" y="0.0" width="32" height="18"/>
+                                                    <fontDescription key="fontDescription" name="SFUIDisplay-Bold" family="SF UI Display" pointSize="15"/>
                                                     <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
@@ -155,7 +151,7 @@
                                                     </constraints>
                                                 </view>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="30" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GkA-AJ-Eu5">
-                                                    <rect key="frame" x="284" y="23" width="33" height="33"/>
+                                                    <rect key="frame" x="284" y="18" width="33" height="33"/>
                                                     <fontDescription key="fontDescription" name="SFUIDisplay-Light" family="SF UI Display" pointSize="28"/>
                                                     <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <nil key="highlightedColor"/>
@@ -188,11 +184,12 @@
                                                             </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="I7g-2g-A6S">
-                                                            <rect key="frame" x="149" y="0.0" width="20" height="22"/>
+                                                            <rect key="frame" x="139" y="-10" width="40" height="42"/>
                                                             <constraints>
-                                                                <constraint firstAttribute="width" constant="20" id="JiN-Zl-rQL"/>
-                                                                <constraint firstAttribute="height" constant="22" id="sfI-xI-o8u"/>
+                                                                <constraint firstAttribute="width" constant="40" id="JiN-Zl-rQL"/>
+                                                                <constraint firstAttribute="height" constant="42" id="sfI-xI-o8u"/>
                                                             </constraints>
+                                                            <inset key="contentEdgeInsets" minX="10" minY="10" maxX="10" maxY="10"/>
                                                             <state key="normal" image="play"/>
                                                             <connections>
                                                                 <action selector="playButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="eSw-2R-DXa"/>
@@ -236,14 +233,14 @@
                                                         <constraint firstAttribute="bottom" secondItem="eYE-Jw-43T" secondAttribute="bottom" id="5OR-EQ-ECW"/>
                                                         <constraint firstItem="eYE-Jw-43T" firstAttribute="leading" secondItem="RjX-9A-XeY" secondAttribute="leading" constant="10" id="80G-ag-e55"/>
                                                         <constraint firstAttribute="bottom" secondItem="SUb-HA-8Vr" secondAttribute="bottom" id="APH-nT-51j"/>
-                                                        <constraint firstItem="I7g-2g-A6S" firstAttribute="leading" secondItem="3XJ-WG-Wn3" secondAttribute="trailing" constant="20" id="Caq-P0-bk9"/>
+                                                        <constraint firstItem="I7g-2g-A6S" firstAttribute="leading" secondItem="3XJ-WG-Wn3" secondAttribute="trailing" constant="10" id="Caq-P0-bk9"/>
                                                         <constraint firstAttribute="bottom" secondItem="oEH-Q3-O1g" secondAttribute="bottom" id="Frw-Bu-2vc"/>
                                                         <constraint firstItem="I7g-2g-A6S" firstAttribute="centerX" secondItem="RjX-9A-XeY" secondAttribute="centerX" id="Hw5-gF-TWi"/>
-                                                        <constraint firstItem="SUb-HA-8Vr" firstAttribute="leading" secondItem="I7g-2g-A6S" secondAttribute="trailing" constant="20" id="IAR-lR-hH8"/>
+                                                        <constraint firstItem="SUb-HA-8Vr" firstAttribute="leading" secondItem="I7g-2g-A6S" secondAttribute="trailing" constant="10" id="IAR-lR-hH8"/>
                                                         <constraint firstAttribute="height" constant="22" id="Pjy-fS-B3Y"/>
                                                         <constraint firstAttribute="bottom" secondItem="3XJ-WG-Wn3" secondAttribute="bottom" id="RMT-ea-JiC"/>
                                                         <constraint firstAttribute="trailing" secondItem="oEH-Q3-O1g" secondAttribute="trailing" constant="10" id="itB-r0-Qfo"/>
-                                                        <constraint firstAttribute="bottom" secondItem="I7g-2g-A6S" secondAttribute="bottom" id="wqb-HU-1sC"/>
+                                                        <constraint firstAttribute="bottom" secondItem="I7g-2g-A6S" secondAttribute="bottom" constant="-10" id="wqb-HU-1sC"/>
                                                     </constraints>
                                                 </view>
                                             </subviews>
@@ -391,7 +388,7 @@
                                 </constraints>
                             </view>
                             <searchBar contentMode="redraw" searchBarStyle="minimal" text="" placeholder="search" translatesAutoresizingMaskIntoConstraints="NO" id="i5M-yw-8qa">
-                                <rect key="frame" x="16" y="34" width="343" height="44"/>
+                                <rect key="frame" x="16" y="21" width="343" height="44"/>
                                 <textInputTraits key="textInputTraits"/>
                             </searchBar>
                             <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Gradient" translatesAutoresizingMaskIntoConstraints="NO" id="yQI-Nm-upZ">
@@ -403,32 +400,31 @@
                         </subviews>
                         <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstAttribute="leadingMargin" secondItem="ZTy-ss-Xhd" secondAttribute="leading" id="2TE-Uu-ewt"/>
+                            <constraint firstItem="2QG-VE-m4v" firstAttribute="leading" secondItem="8n1-Sd-Xj4" secondAttribute="trailing" constant="42" id="1Cs-aQ-4Zr"/>
+                            <constraint firstItem="2QG-VE-m4v" firstAttribute="centerY" secondItem="8n1-Sd-Xj4" secondAttribute="centerY" id="4lB-Uf-tPo"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="g2D-n0-eoT" secondAttribute="bottom" constant="19" id="6KQ-9N-RhP"/>
-                            <constraint firstItem="g2D-n0-eoT" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="6p2-i6-eLo"/>
-                            <constraint firstItem="2QG-VE-m4v" firstAttribute="centerY" secondItem="HhJ-aj-zCu" secondAttribute="centerY" id="8Rv-ay-LZc"/>
-                            <constraint firstItem="HhJ-aj-zCu" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="8ql-KD-Zch"/>
-                            <constraint firstItem="ZTy-ss-Xhd" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="ANr-20-6QE"/>
-                            <constraint firstItem="ZTy-ss-Xhd" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="Ay1-no-ua4"/>
-                            <constraint firstItem="i5M-yw-8qa" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="14" id="DM0-jI-hAp"/>
-                            <constraint firstItem="g2D-n0-eoT" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="ERd-0X-8Eg"/>
-                            <constraint firstItem="Ik7-d5-Fp7" firstAttribute="top" secondItem="HhJ-aj-zCu" secondAttribute="bottom" constant="5" id="ETT-Ox-dam"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="ZTy-ss-Xhd" secondAttribute="trailing" id="Fhl-OI-02T"/>
+                            <constraint firstAttribute="trailing" secondItem="ZTy-ss-Xhd" secondAttribute="trailing" constant="16" id="9ra-VR-fY2"/>
+                            <constraint firstAttribute="trailing" secondItem="i5M-yw-8qa" secondAttribute="trailing" constant="16" id="BEV-do-4mE"/>
+                            <constraint firstItem="i5M-yw-8qa" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="21" id="D25-4i-3zh"/>
+                            <constraint firstItem="8n1-Sd-Xj4" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="26" id="FH7-Nl-TbU"/>
+                            <constraint firstAttribute="trailing" secondItem="g2D-n0-eoT" secondAttribute="trailing" constant="16" id="Hkf-GP-8O9"/>
+                            <constraint firstItem="i5M-yw-8qa" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="16" id="MWp-lu-PAN"/>
                             <constraint firstItem="g2D-n0-eoT" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="POC-Vy-qWL"/>
                             <constraint firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="RcT-ru-hHl"/>
+                            <constraint firstItem="g2D-n0-eoT" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="16" id="WyS-6S-joE"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="xA5-oZ-Oo5" secondAttribute="bottom" constant="20" id="b8W-s0-oV7"/>
                             <constraint firstAttribute="trailingMargin" secondItem="xA5-oZ-Oo5" secondAttribute="trailing" constant="86" id="cxc-b3-gNh"/>
                             <constraint firstAttribute="trailing" secondItem="yQI-Nm-upZ" secondAttribute="trailing" id="gYx-id-q7S"/>
                             <constraint firstItem="ZTy-ss-Xhd" firstAttribute="top" secondItem="Ik7-d5-Fp7" secondAttribute="bottom" id="guW-Ps-6W0"/>
                             <constraint firstAttribute="trailingMargin" secondItem="Ik7-d5-Fp7" secondAttribute="trailing" id="ilm-o0-e6c"/>
+                            <constraint firstItem="Ik7-d5-Fp7" firstAttribute="top" secondItem="8n1-Sd-Xj4" secondAttribute="bottom" constant="5" id="jeC-LN-XKj"/>
                             <constraint firstItem="Ik7-d5-Fp7" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="jhB-zy-7YW"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="yQI-Nm-upZ" secondAttribute="bottom" id="kDh-jf-rOJ"/>
-                            <constraint firstItem="i5M-yw-8qa" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="lLh-3K-LNQ"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="i5M-yw-8qa" secondAttribute="trailing" id="p6r-lQ-4tM"/>
+                            <constraint firstItem="8n1-Sd-Xj4" firstAttribute="top" secondItem="i5M-yw-8qa" secondAttribute="bottom" constant="5" id="pFt-gD-QP8"/>
+                            <constraint firstAttribute="trailing" secondItem="2QG-VE-m4v" secondAttribute="trailing" constant="26" id="tZ3-SE-TeZ"/>
                             <constraint firstItem="yQI-Nm-upZ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="tz0-Wl-7cN"/>
                             <constraint firstItem="g2D-n0-eoT" firstAttribute="top" secondItem="ZTy-ss-Xhd" secondAttribute="bottom" id="yTa-uZ-mpF"/>
-                            <constraint firstItem="HhJ-aj-zCu" firstAttribute="top" secondItem="i5M-yw-8qa" secondAttribute="bottom" constant="5" id="zJR-lg-NdR"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="2QG-VE-m4v" secondAttribute="trailing" constant="1" id="zlk-UF-jrp"/>
+                            <constraint firstItem="ZTy-ss-Xhd" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="16" id="yd3-xD-PSn"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="H1t-1y-WYc"/>
@@ -437,7 +433,7 @@
                         <outlet property="calendarView" destination="ZTy-ss-Xhd" id="eU7-Wg-tdr"/>
                         <outlet property="calendarViewHeightContraint" destination="Kr2-Jx-CUh" id="lV7-yP-16m"/>
                         <outlet property="collapseCalendarButton" destination="2QG-VE-m4v" id="AcE-xO-Qvh"/>
-                        <outlet property="monthButton" destination="HhJ-aj-zCu" id="FmO-ix-2x1"/>
+                        <outlet property="monthLabel" destination="8n1-Sd-Xj4" id="LbO-Qh-bbe"/>
                         <outlet property="searchBar" destination="i5M-yw-8qa" id="sUJ-VI-Md3"/>
                         <outlet property="spinner" destination="GCb-8l-0ne" id="cV4-Q0-HE7"/>
                         <outlet property="tableView" destination="g2D-n0-eoT" id="DTL-se-daU"/>
@@ -449,6 +445,13 @@
                     <rect key="frame" x="0.0" y="0.0" width="20" height="20"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 </activityIndicatorView>
+                <textField opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Oct 28 ,2016" placeholder="Title" minimumFontSize="30" id="b6K-vN-1cU" userLabel="Title Text">
+                    <rect key="frame" x="0.0" y="0.0" width="260" height="36"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <fontDescription key="fontDescription" name="SFUIDisplay-Bold" family="SF UI Display" pointSize="36"/>
+                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                </textField>
             </objects>
             <point key="canvasLocation" x="5604" y="-479.01049475262374"/>
         </scene>
@@ -927,6 +930,10 @@
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
+                                <connections>
+                                    <outlet property="dataSource" destination="h8c-J8-nD0" id="33n-2N-heu"/>
+                                    <outlet property="delegate" destination="h8c-J8-nD0" id="7S2-Pc-RjC"/>
+                                </connections>
                             </collectionView>
                             <textView hidden="YES" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" editable="NO" text="Transcription text goes here..." selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="H83-nK-t9o">
                                 <rect key="frame" x="30" y="121" width="315" height="385"/>
@@ -979,7 +986,7 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 </activityIndicatorView>
             </objects>
-            <point key="canvasLocation" x="4772" y="-479.01049475262374"/>
+            <point key="canvasLocation" x="4978" y="-479"/>
         </scene>
     </scenes>
     <resources>
@@ -987,7 +994,7 @@
         <image name="Gear" width="48" height="47"/>
         <image name="Gradient" width="375" height="119"/>
         <image name="List" width="88" height="80"/>
-        <image name="Location" width="157" height="165"/>
+        <image name="Location" width="58" height="61"/>
         <image name="Selected List" width="117" height="110"/>
         <image name="Selected Map" width="162" height="192"/>
         <image name="bg" width="375" height="667"/>
