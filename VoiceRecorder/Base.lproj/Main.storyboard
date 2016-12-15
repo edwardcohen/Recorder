@@ -144,7 +144,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <view alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UAL-xL-c0P">
-                                                    <rect key="frame" x="0.0" y="0.0" width="343" height="0.5"/>
+                                                    <rect key="frame" x="0.0" y="53" width="343" height="0.5"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="0.5" id="WVk-Ni-LDZ"/>
@@ -251,7 +251,7 @@
                                                 <constraint firstAttribute="trailingMargin" secondItem="UAL-xL-c0P" secondAttribute="trailing" constant="-8" id="NZu-vC-0jZ"/>
                                                 <constraint firstItem="SWP-E2-mak" firstAttribute="top" secondItem="EOj-lB-s4m" secondAttribute="topMargin" constant="-8" id="SgO-63-T4Y"/>
                                                 <constraint firstItem="GkA-AJ-Eu5" firstAttribute="bottom" secondItem="EYU-mk-zTa" secondAttribute="bottom" id="XsU-qy-w7v"/>
-                                                <constraint firstItem="UAL-xL-c0P" firstAttribute="top" secondItem="EOj-lB-s4m" secondAttribute="topMargin" constant="-8" id="YO4-NQ-8Kl"/>
+                                                <constraint firstItem="UAL-xL-c0P" firstAttribute="top" secondItem="EOj-lB-s4m" secondAttribute="topMargin" constant="45" id="YO4-NQ-8Kl"/>
                                                 <constraint firstAttribute="trailingMargin" secondItem="RjX-9A-XeY" secondAttribute="trailing" constant="8" id="c4h-yV-qUH"/>
                                                 <constraint firstAttribute="trailingMargin" secondItem="cwZ-l8-noC" secondAttribute="trailing" id="dCh-Ck-ShK"/>
                                                 <constraint firstItem="Yi2-ny-neM" firstAttribute="top" secondItem="EOj-lB-s4m" secondAttribute="topMargin" constant="-6" id="dPp-89-TsJ"/>
@@ -575,7 +575,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="z2m-eW-QXV" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4775.1999999999998" y="167.76611694152925"/>
+            <point key="canvasLocation" x="4977" y="172"/>
         </scene>
         <!--Voice Detail View Controller-->
         <scene sceneID="tRG-6C-iYe">

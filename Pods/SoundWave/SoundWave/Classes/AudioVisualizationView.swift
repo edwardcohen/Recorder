@@ -48,7 +48,7 @@ public class AudioVisualizationView: BaseNibView {
 		return meteringLevelsArray
 	}
 
-    var playChronometer: Chronometer?
+    public var playChronometer: Chronometer?
 
 	public var meteringLevels: [Float]? {
 		didSet {

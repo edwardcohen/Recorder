@@ -58,7 +58,7 @@ class VoiceTableViewController: UIViewController {
         let font = UIFont(name: "SFUIDisplay-Regular", size: 14)
         textFieldInsideSearchBar?.font = font
         
-        let tap = UITapGestureRecognizer(target: self, action: #selector(collapseCalendar))
+        let tap = UITapGestureRecognizer(target: self, action: #selector(onClickMonthLabel))
         monthLabel.addGestureRecognizer(tap)
         
         tableView.delegate = self
@@ -86,7 +86,7 @@ class VoiceTableViewController: UIViewController {
 //        collapseCalendarWithoutAnimation()
     }
     
-    @IBAction func onClickMonthButton(sender: AnyObject) {
+    func onClickMonthLabel() {
         collapseCalendar()
         let monthName = DateFormatter().monthSymbols[(selectedMonth!-1) % 12]
         monthLabel.text = monthName
@@ -111,7 +111,6 @@ class VoiceTableViewController: UIViewController {
             let fetchError = error as NSError
             print("\(fetchError), \(fetchError.userInfo)")
         }
-        
     }
     
     //MARK: Actions
@@ -198,7 +197,6 @@ class VoiceTableViewController: UIViewController {
             let cell = tableView.cellForRow(at: selectedCellIndexPath) as? VoiceTableCellView,
             let player = audioPlayer
             else {return}
-        
         player.delegate = self
         if player.isPlaying {
             player.pause()
@@ -206,16 +204,10 @@ class VoiceTableViewController: UIViewController {
             cell.playButton.setImage(#imageLiteral(resourceName: "play") , for: UIControlState.normal)
         } else {
             let data = voiceRecords[selectedCellIndexPath.row]
-            cell.waves.reset()
-            cell.waves.meteringLevelsArray.append(contentsOf: data.metering)
-            cell.waves.meteringLevels = cell.waves.scaleSoundDataToFitScreen()
             cell.waves.audioVisualizationMode = .read
-            cell.waves.meteringLevelBarWidth = 1.0
-            cell.waves.gradientStartColor = UIColor.hex(hex: "#686868")
-            cell.waves.gradientEndColor = .white
-            cell.waves.play(for: TimeInterval(data.length.floatValue + 5))
+            cell.waves.meteringLevelsArray = data.metering
+            cell.waves.play(for: TimeInterval(data.length.floatValue + 0.5))
             player.play()
-            
             cell.playButton.setImage(#imageLiteral(resourceName: "pause") , for: UIControlState.normal)
         }
     }
@@ -631,6 +623,13 @@ extension VoiceTableViewController: UITableViewDataSource {
         
         cell.voiceRecord = voiceRecord
         cell.backgroundColor = .clear
+//        cell.waves.
+        cell.waves.meteringLevelsArray = voiceRecord.metering
+        cell.waves.meteringLevels = cell.waves.scaleSoundDataToFitScreen()
+        cell.waves.audioVisualizationMode = .read
+        cell.waves.meteringLevelBarWidth = 1.0
+        cell.waves.gradientStartColor = UIColor.hex(hex: "#686868")
+        cell.waves.gradientEndColor = .white
         
         let backgroundView = UIView()
         backgroundView.backgroundColor = .clear
@@ -658,23 +657,19 @@ extension VoiceTableViewController: UITableViewDelegate {
         let cell = tableView.cellForRow(at: indexPath) as? VoiceTableCellView
         if selectedCellIndexPath == indexPath {
             selectedCellIndexPath = nil
-            stopAudioPlayer()
-            cell?.waves.reset()
+            audioPlayer?.stop()
+            cell?.separator.isHidden = false
         } else {
             selectedCellIndexPath = indexPath
             initAudioPlayer()
+            cell?.separator.isHidden = true
+            cell?.playButton.setImage(#imageLiteral(resourceName: "play") , for: UIControlState.normal)
         }
         
         tableView.beginUpdates()
         tableView.deselectRow(at: indexPath, animated: false)
         tableView.endUpdates()
         // self.tableView.reloadData()
-    }
-    
-    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        let cell = tableView.cellForRow(at: indexPath) as? VoiceTableCellView
-        cell?.waves.reset()
-        audioPlayer?.pause()
     }
 }
 

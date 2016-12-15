@@ -181,6 +181,7 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         switch gesture.state {
         case UIGestureRecognizerState.began:
             print("begin long press")
+            self.vCircularProgress.isHidden = true
             transTextView.isHidden = false
             UIView.animate(withDuration: 0.4,
                            animations: {
@@ -192,13 +193,14 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
                 startRecording()
                 SpeechTotextConversion()
                 
-              if self.displayLink.isPaused == true {
+                if self.displayLink.isPaused == true {
                     self.displayLink.isPaused = false
                 }
                 recordState = RecordState.Continuous
                 updateUI()
             } else if recordState == RecordState.Pause {
                 self.displayLink.isPaused = false
+                recordState = RecordState.Continuous
                 marks.append(timerCount)
                 audioRecorder.record()
                 SpeechTotextConversion()
@@ -210,6 +212,7 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
             
         case .ended, .cancelled:
             print("end long press")
+            self.vCircularProgress.isHidden = false
             UIView.animate(withDuration: 0.4,
                            animations: {
                             self.vCircularProgress.transform = CGAffineTransform.identity
@@ -330,31 +333,7 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
     func startRecording() {
         let filename = NSUUID().uuidString + ".m4a"
         audioFileURL = getDocumentsDirectoryURL().appendingPathComponent(filename)
-        
         timerLabel.isHidden = false
-//        let settings = [
-//            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-//            AVSampleRateKey: 12000.0,
-//            AVNumberOfChannelsKey: 1 as NSNumber,
-//            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
-//        ] as [String : Any]
-//
-//        do {
-//            try recordingSession.setCategory(AVAudioSessionCategoryRecord)
-//            try recordingSession.setMode(AVAudioSessionModeMeasurement)
-//            try recordingSession.setActive(true, with:AVAudioSessionSetActiveOptions.notifyOthersOnDeactivation)
-//            audioRecorder = try AVAudioRecorder(url: audioFileURL!, settings: settings)
-//            audioRecorder.delegate = self
-//            audioRecorder.isMeteringEnabled = true
-//            audioRecorder.record(forDuration: Constants.MainParameters.durations)
-//            audioRecorder.prepareToRecord()
-//            audioRecorder.record()
-//            timerCount = 0
-//            recordingTimer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(timerUpdate), userInfo: nil, repeats: true)
-//            timerUpdate()
-//        } catch {
-//            abortRecording()
-//        }
         
         let settings = [
             AVFormatIDKey: NSNumber(value:kAudioFormatAppleLossless),
