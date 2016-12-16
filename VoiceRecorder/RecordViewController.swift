@@ -73,7 +73,6 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         transTextView.text = "Transcript goes here..."
         transTextView.textContainerInset = UIEdgeInsets.zero
         transTextView.textContainer.lineFragmentPadding = 0
-        vCircularProgress.layer.borderWidth = 0.0
         
         speechRecognizer!.delegate = self
         SFSpeechRecognizer.requestAuthorization { (authStatus) in
@@ -151,8 +150,8 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         deleteAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         deleteAlert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { action in
             if self.recordState == RecordState.Pause {
-                self.tags.removeAll()
-                self.tags.append("+")
+                //self.tags.removeAll()
+               // self.tags.append("+")
 //                self.tagView.reloadData()
                 self.marks.removeAll()
                 self.recordState = RecordState.None
@@ -555,7 +554,7 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         let trans = !((transTextView.text?.isEmpty)!) ? transTextView.text : ""
         let length = timerCount - 1 < 0 ? 0 : timerCount - 1
 //            try? self.viewModel.startPlaying()
-        let tags = self.tags.filter() { $0 != "+" }
+       // let tags = self.tags.filter() { $0 != "+" }
         let location = currentLocation != nil ? currentLocation! : CLLocation()
         let date = NSDate()
         let marks = self.marks
@@ -599,8 +598,8 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         }
         
         if recordState == RecordState.Done {
-            self.tags.removeAll()
-            self.tags.append("+")
+//            self.tags.removeAll()
+//            self.tags.append("+")
 //            tagView.reloadData()
             self.marks.removeAll()
             recordState = RecordState.None
@@ -730,25 +729,25 @@ extension RecordViewController: UICollectionViewDataSource {
 
 extension RecordViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if tags[indexPath.item] == "+" {
-            var tagTextField: UITextField?
-            let alertController = UIAlertController(title: "Add Tag", message: nil, preferredStyle: .alert)
-            let ok = UIAlertAction(title: "OK", style: .default, handler: { (action) -> Void in
-                if let tagText = tagTextField!.text {
-                    self.tags.insert(tagText, at: self.tags.count - 1)
-                    //                    self.tagView.reloadData()
-                }
-            })
-            let cancel = UIAlertAction(title: "Cancel", style: .default, handler: nil)
-            alertController.addAction(cancel)
-            alertController.addAction(ok)
-            alertController.addTextField { (textField) -> Void in
-                tagTextField = textField
-                tagTextField!.placeholder = "Tag"
-                tagTextField?.autocapitalizationType = UITextAutocapitalizationType.sentences
-            }
-            present(alertController, animated: true, completion: nil)
-        }
+//        if tags[indexPath.item] == "+" {
+//            var tagTextField: UITextField?
+//            let alertController = UIAlertController(title: "Add Tag", message: nil, preferredStyle: .alert)
+//            let ok = UIAlertAction(title: "OK", style: .default, handler: { (action) -> Void in
+//                if let tagText = tagTextField!.text {
+//                    self.tags.insert(tagText, at: self.tags.count - 1)
+//                    //                    self.tagView.reloadData()
+//                }
+//            })
+//            let cancel = UIAlertAction(title: "Cancel", style: .default, handler: nil)
+//            alertController.addAction(cancel)
+//            alertController.addAction(ok)
+//            alertController.addTextField { (textField) -> Void in
+//                tagTextField = textField
+//                tagTextField!.placeholder = "Tag"
+//                tagTextField?.autocapitalizationType = UITextAutocapitalizationType.sentences
+//            }
+//            present(alertController, animated: true, completion: nil)
+//        }
     }
 }
 

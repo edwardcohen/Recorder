@@ -27,6 +27,7 @@
 		8BD250951D9EBAC10000E359 /* Pods_VoiceRecorder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3128D151D2541D5560030952 /* Pods_VoiceRecorder.framework */; };
 		8BFF2CA61D537C9000D84BF2 /* VoiceTableCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFF2CA51D537C9000D84BF2 /* VoiceTableCellView.swift */; };
 		E5E953A61DF04F480089294D /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5E953A51DF04F480089294D /* Extensions.swift */; };
+		FA07BBED1E0448400077DD19 /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA07BBEC1E0448400077DD19 /* Functions.swift */; };
 		FA08EE2C1E01883400855F2F /* VoiceRecorder.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FA08EE2A1E01883400855F2F /* VoiceRecorder.xcdatamodeld */; };
 		FA226C871DF9413400421E37 /* SF-UI-Display-Black.otf in Resources */ = {isa = PBXBuildFile; fileRef = FA226C7E1DF9413400421E37 /* SF-UI-Display-Black.otf */; };
 		FA226C881DF9413400421E37 /* SF-UI-Display-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = FA226C7F1DF9413400421E37 /* SF-UI-Display-Bold.otf */; };
@@ -87,6 +88,7 @@
 		8BFA25831D523C2E00821EEC /* VoiceRecorder.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = VoiceRecorder.entitlements; sourceTree = "<group>"; };
 		8BFF2CA51D537C9000D84BF2 /* VoiceTableCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VoiceTableCellView.swift; sourceTree = "<group>"; };
 		E5E953A51DF04F480089294D /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		FA07BBEC1E0448400077DD19 /* Functions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Functions.swift; sourceTree = "<group>"; };
 		FA08EE2B1E01883400855F2F /* VoiceRecorder.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = VoiceRecorder.xcdatamodel; sourceTree = "<group>"; };
 		FA226C7E1DF9413400421E37 /* SF-UI-Display-Black.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-UI-Display-Black.otf"; sourceTree = "<group>"; };
 		FA226C7F1DF9413400421E37 /* SF-UI-Display-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-UI-Display-Bold.otf"; sourceTree = "<group>"; };
@@ -274,6 +276,7 @@
 				FA8DF8651DFAFDC900BB00B3 /* AudioRecorderManager.swift */,
 				FA8DF8661DFAFDC900BB00B3 /* AudioErrorType.swift */,
 				FA8DF8671DFAFDC900BB00B3 /* SoundWave+Helpers.swift */,
+				FA07BBEC1E0448400077DD19 /* Functions.swift */,
 			);
 			name = Helpers;
 			sourceTree = "<group>";
@@ -501,6 +504,7 @@
 				FA7CDD2E1DF17F260051C87E /* ContainerViewController.swift in Sources */,
 				8B0275101D54DEF600983BF5 /* Voice.swift in Sources */,
 				FA8DF86B1DFAFDC900BB00B3 /* SoundWave+Helpers.swift in Sources */,
+				FA07BBED1E0448400077DD19 /* Functions.swift in Sources */,
 				FA7CDD2A1DF1751B0051C87E /* Constants.swift in Sources */,
 				8B02750C1D54D92A00983BF5 /* VoiceDetailViewController.swift in Sources */,
 				FA08EE2C1E01883400855F2F /* VoiceRecorder.xcdatamodeld in Sources */,

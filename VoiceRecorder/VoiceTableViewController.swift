@@ -620,10 +620,13 @@ extension VoiceTableViewController: UITableViewDataSource {
         } else {
             voiceRecord = voiceRecords[indexPath.row]
         }
+        let heightText = Functions.getStringHeight(voiceRecord.transcript, font: UIFont(name: "SFUIDisplay-Regular", size: 13)!, width: self.view.frame.width - 50)
+        //think about this for others devices
+        cell.topWavesConstrains.constant = 79.0 + heightText - 25
+        cell.topPlayerConstrains.constant = 141.5 + heightText - 25
         
         cell.voiceRecord = voiceRecord
         cell.backgroundColor = .clear
-//        cell.waves.
         cell.waves.meteringLevelsArray = voiceRecord.metering
         cell.waves.meteringLevels = cell.waves.scaleSoundDataToFitScreen()
         cell.waves.audioVisualizationMode = .read
@@ -654,22 +657,25 @@ extension VoiceTableViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let cell = tableView.cellForRow(at: indexPath) as? VoiceTableCellView
-        if selectedCellIndexPath == indexPath {
-            selectedCellIndexPath = nil
-            audioPlayer?.stop()
-            cell?.separator.isHidden = false
-        } else {
-            selectedCellIndexPath = indexPath
-            initAudioPlayer()
-            cell?.separator.isHidden = true
-            cell?.playButton.setImage(#imageLiteral(resourceName: "play") , for: UIControlState.normal)
+        let array = tableView.indexPathsForSelectedRows ?? []
+        for index in array {
+            print(index.row)
         }
-        
-        tableView.beginUpdates()
-        tableView.deselectRow(at: indexPath, animated: false)
-        tableView.endUpdates()
-        // self.tableView.reloadData()
+        if let cell = tableView.cellForRow(at: indexPath) as? VoiceTableCellView {
+            if selectedCellIndexPath == indexPath {
+                selectedCellIndexPath = nil
+                audioPlayer?.stop()
+            } else {
+                selectedCellIndexPath = indexPath
+                initAudioPlayer()
+                cell.playButton.setImage(#imageLiteral(resourceName: "play") , for: UIControlState.normal)
+            }
+            
+            tableView.beginUpdates()
+            tableView.deselectRow(at: indexPath, animated: true)
+            tableView.endUpdates()
+    //        self.tableView.reloadData()
+        }
     }
 }
 

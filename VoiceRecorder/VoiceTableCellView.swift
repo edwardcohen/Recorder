@@ -13,6 +13,9 @@ import SoundWave
 
 class VoiceTableCellView: UITableViewCell {
     
+    @IBOutlet weak var topWavesConstrains: NSLayoutConstraint!
+    @IBOutlet weak var topPlayerConstrains: NSLayoutConstraint!
+    
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var lengthLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
@@ -20,7 +23,6 @@ class VoiceTableCellView: UITableViewCell {
     @IBOutlet weak var transcription: UILabel!
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var waves: AudioVisualizationView!
-    @IBOutlet weak var separator: UIView!
     
     var tags: [String] = []
     var sizingCell: TagCellView?
