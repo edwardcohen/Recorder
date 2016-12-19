@@ -19,13 +19,13 @@ class Functions {
             label.text = text
             
             label.sizeToFit()
-            if label.frame.height > 37.5 {
+            if label.frame.height > 16 {
                 return label.frame.height
             } else {
-                return 37.5
+                return 16
             }
         } else {
-            return 37.5
+            return 16
         }
     }
 }

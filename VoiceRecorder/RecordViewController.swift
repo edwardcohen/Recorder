@@ -31,6 +31,7 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
     @IBOutlet weak var locationButton: UIButton!
     @IBOutlet weak var listButton: UIButton!
     @IBOutlet var vCircularProgress: KDCircularProgress!
+    @IBOutlet weak var menuView: UIView!
     
     var recordingSession: AVAudioSession!
     var audioRecorder: AVAudioRecorder!
@@ -177,6 +178,7 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
     }
     
     func longPressed(gesture: UILongPressGestureRecognizer) {
+
         switch gesture.state {
         case UIGestureRecognizerState.began:
             print("begin long press")
@@ -185,8 +187,9 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
             UIView.animate(withDuration: 0.4,
                            animations: {
                             self.vCircularProgress.transform = CGAffineTransform(scaleX: 1.25, y: 1.25)
-            }, completion: nil)
-
+            }, completion: {[unowned self] (_ : Bool) in self.tapticFeedbackOnRecordStateChange()})
+            addButtonPulseAnimation()
+            
             if recordState == RecordState.None {
                 
                 startRecording()
@@ -212,10 +215,12 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         case .ended, .cancelled:
             print("end long press")
             self.vCircularProgress.isHidden = false
+            tapticFeedbackOnRecordStateChange()
             UIView.animate(withDuration: 0.4,
                            animations: {
                             self.vCircularProgress.transform = CGAffineTransform.identity
             }, completion: nil)
+            removeButtonPulseAnimation()
             if recordState == RecordState.Continuous {
                 if audioEngine.isRunning {
                     audioEngine.stop()
@@ -231,6 +236,50 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
             }
         default:
             print("other event at long press")
+        }
+    }
+
+    func tapticFeedbackOnRecordStateChange() {
+        if #available(iOS 10.0, *) {
+            let feedbackGenerator = UISelectionFeedbackGenerator()
+            feedbackGenerator.prepare()
+            feedbackGenerator.selectionChanged()
+        } else {
+            return
+        }
+    }
+    
+    func addButtonPulseAnimation() {
+        
+            let pulseEffect1 = LFTPulseAnimation(repeatCount: Float.infinity, radius: 40, position: self.recordButton.center)
+            self.menuView.layer.insertSublayer(pulseEffect1, below: self.recordButton.layer)
+            pulseEffect1.radius = 180
+            pulseEffect1.backgroundColor = UIColor.white.cgColor
+        
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1) {
+            let pulseEffect1 = LFTPulseAnimation(repeatCount: Float.infinity, radius: 40, position: self.recordButton.center)
+            self.menuView.layer.insertSublayer(pulseEffect1, below: self.recordButton.layer)
+            pulseEffect1.radius = 180
+            pulseEffect1.backgroundColor = UIColor.white.cgColor
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2) {
+            let pulseEffect1 = LFTPulseAnimation(repeatCount: Float.infinity, radius: 40, position: self.recordButton.center)
+            self.menuView.layer.insertSublayer(pulseEffect1, below: self.recordButton.layer)
+            pulseEffect1.radius = 180
+            pulseEffect1.backgroundColor = UIColor.white.cgColor
+        }
+    }
+    
+    func removeButtonPulseAnimation() {
+        
+        for layer in menuView.layer.sublayers! {
+            switch layer {
+            case is LFTPulseAnimation:
+                layer.removeFromSuperlayer()
+            default:
+               continue
+            }
         }
     }
     
@@ -279,8 +328,10 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
     func showedBasicButton(isHiddeMain: Bool, isHidde: Bool) {
         doneButton.isHidden = isHidde
         deleteButton.isHidden = isHidde
-        locationButton.isHidden = isHiddeMain
-        listButton.isHidden = isHiddeMain
+        //locationButton.isHidden = isHiddeMain
+        //listButton.isHidden = isHiddeMain
+        locationButton.isHidden = true
+        listButton.isHidden = true
         tagView.isHidden = isHiddeMain
     }
     
@@ -551,7 +602,7 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
             transTextView.text = ""
         }
 
-        let trans = !((transTextView.text?.isEmpty)!) ? transTextView.text : ""
+        let trans = !((transTextView.text?.isEmpty)!) ? transTextView.text : "<No transcription>"
         let length = timerCount - 1 < 0 ? 0 : timerCount - 1
 //            try? self.viewModel.startPlaying()
        // let tags = self.tags.filter() { $0 != "+" }
@@ -723,6 +774,7 @@ extension RecordViewController: UICollectionViewDataSource {
         let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! TagCellView
         tagCell.tagLabel.text = tags[indexPath.item]
         tagCell.tagLabel.adjustsFontSizeToFitWidth = true
+        tagCell.tagLabel.sizeToFit()
         return tagCell
     }
 }
