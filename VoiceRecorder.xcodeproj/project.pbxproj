@@ -29,6 +29,7 @@
 		E5E953A61DF04F480089294D /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5E953A51DF04F480089294D /* Extensions.swift */; };
 		FA07BBED1E0448400077DD19 /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA07BBEC1E0448400077DD19 /* Functions.swift */; };
 		FA08EE2C1E01883400855F2F /* VoiceRecorder.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FA08EE2A1E01883400855F2F /* VoiceRecorder.xcdatamodeld */; };
+		FA2190EB1E087FEF00579994 /* LFTPulseAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2190EA1E087FEF00579994 /* LFTPulseAnimation.swift */; };
 		FA226C871DF9413400421E37 /* SF-UI-Display-Black.otf in Resources */ = {isa = PBXBuildFile; fileRef = FA226C7E1DF9413400421E37 /* SF-UI-Display-Black.otf */; };
 		FA226C881DF9413400421E37 /* SF-UI-Display-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = FA226C7F1DF9413400421E37 /* SF-UI-Display-Bold.otf */; };
 		FA226C891DF9413400421E37 /* SF-UI-Display-Heavy.otf in Resources */ = {isa = PBXBuildFile; fileRef = FA226C801DF9413400421E37 /* SF-UI-Display-Heavy.otf */; };
@@ -90,6 +91,7 @@
 		E5E953A51DF04F480089294D /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		FA07BBEC1E0448400077DD19 /* Functions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Functions.swift; sourceTree = "<group>"; };
 		FA08EE2B1E01883400855F2F /* VoiceRecorder.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = VoiceRecorder.xcdatamodel; sourceTree = "<group>"; };
+		FA2190EA1E087FEF00579994 /* LFTPulseAnimation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LFTPulseAnimation.swift; sourceTree = "<group>"; };
 		FA226C7E1DF9413400421E37 /* SF-UI-Display-Black.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-UI-Display-Black.otf"; sourceTree = "<group>"; };
 		FA226C7F1DF9413400421E37 /* SF-UI-Display-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-UI-Display-Bold.otf"; sourceTree = "<group>"; };
 		FA226C801DF9413400421E37 /* SF-UI-Display-Heavy.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-UI-Display-Heavy.otf"; sourceTree = "<group>"; };
@@ -272,6 +274,7 @@
 		FA8DF8631DFAFDB700BB00B3 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				FA2190EA1E087FEF00579994 /* LFTPulseAnimation.swift */,
 				FA8DF8641DFAFDC900BB00B3 /* AudioPlayerManager.swift */,
 				FA8DF8651DFAFDC900BB00B3 /* AudioRecorderManager.swift */,
 				FA8DF8661DFAFDC900BB00B3 /* AudioErrorType.swift */,
@@ -491,6 +494,7 @@
 			files = (
 				6B8003571C99831B00A3ED9C /* VoiceTableViewController.swift in Sources */,
 				543333111DCBAFE800F0E3C8 /* SegueFromLeft.swift in Sources */,
+				FA2190EB1E087FEF00579994 /* LFTPulseAnimation.swift in Sources */,
 				8BFF2CA61D537C9000D84BF2 /* VoiceTableCellView.swift in Sources */,
 				6B80035F1C9983AE00A3ED9C /* AnimationClass.swift in Sources */,
 				8B0218BB1D50ED14007D208D /* RecordViewController.swift in Sources */,
