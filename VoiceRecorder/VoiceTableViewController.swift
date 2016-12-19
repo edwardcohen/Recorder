@@ -66,6 +66,8 @@ class VoiceTableViewController: UIViewController {
         tableView.estimatedRowHeight = 65
         tableView.rowHeight = UITableViewAutomaticDimension
         view.backgroundColor = .recordBlack
+        
+        tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: tableView.frame.height - 50, width: tableView.frame.width, height: 50))
 
         taptoHidekeyBoard = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         taptoHidekeyBoard?.numberOfTapsRequired = 1
@@ -88,8 +90,15 @@ class VoiceTableViewController: UIViewController {
     
     func onClickMonthLabel() {
         collapseCalendar()
-        let monthName = DateFormatter().monthSymbols[(selectedMonth!-1) % 12]
-        monthLabel.text = monthName
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM, yyyy"
+        let selected = dateFormatter.string(from: selectedDate!)
+        monthLabel.text = selected
+
+        
+//        let monthName = DateFormatter().monthSymbols[(selectedMonth!-1) % 12]
+//        monthLabel.text = monthName
         
         let components = calendar.dateComponents([.year, .month], from: selectedDate!)
         let startOfMonth = calendar.date(from: components)!
@@ -118,8 +127,8 @@ class VoiceTableViewController: UIViewController {
         collapseCalendar()
     }
     
-    func collapseCalendar() {
-        if self.calendarViewHeightContraint.constant == 0 {
+    func collapseCalendar(forseCollapse: Bool = false) {
+        if self.calendarViewHeightContraint.constant == 0 && !forseCollapse {
             collapseCalendarButton.setImage(UIImage(named:"icon_minus"), for: UIControlState.normal)
             UIView.animate(withDuration: 0.5, animations: {
                 self.weekDaysStackView.isHidden = false
@@ -620,10 +629,11 @@ extension VoiceTableViewController: UITableViewDataSource {
         } else {
             voiceRecord = voiceRecords[indexPath.row]
         }
-        let heightText = Functions.getStringHeight(voiceRecord.transcript, font: UIFont(name: "SFUIDisplay-Regular", size: 13)!, width: self.view.frame.width - 50)
+        
+        let heightText = Functions.getStringHeight(voiceRecord.transcript, font: UIFont(name: "SFUIDisplay-Regular", size: 13)!, width: self.view.frame.width - 32)
         //think about this for others devices
-        cell.topWavesConstrains.constant = 79.0 + heightText - 25
-        cell.topPlayerConstrains.constant = 141.5 + heightText - 25
+        cell.topWavesConstrains.constant = 79.0 + heightText - 16
+        cell.topPlayerConstrains.constant = 147.5 + heightText - 16
         
         cell.voiceRecord = voiceRecord
         cell.backgroundColor = .clear
@@ -657,10 +667,11 @@ extension VoiceTableViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let array = tableView.indexPathsForSelectedRows ?? []
-        for index in array {
-            print(index.row)
-        }
+//        let array = tableView.indexPathsForSelectedRows ?? []
+//        for index in array {
+//            print(index.row)
+//        }
+        collapseCalendar(forseCollapse: true)
         if let cell = tableView.cellForRow(at: indexPath) as? VoiceTableCellView {
             if selectedCellIndexPath == indexPath {
                 selectedCellIndexPath = nil
