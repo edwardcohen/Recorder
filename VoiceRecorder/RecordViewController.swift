@@ -140,7 +140,7 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
             self.audioRecorder!.updateMeters()
             let averagePower = audioRecorder!.averagePower(forChannel: 0)
             let percentage: Float = pow(10, (0.05 * averagePower))
-            print("metering - \(percentage)")
+            //print("metering - \(percentage)")
             metering.append(percentage)
         }
     }
@@ -151,9 +151,6 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         deleteAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         deleteAlert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { action in
             if self.recordState == RecordState.Pause {
-                //self.tags.removeAll()
-               // self.tags.append("+")
-//                self.tagView.reloadData()
                 self.marks.removeAll()
                 self.recordState = RecordState.None
                 let dateFormatter = DateFormatter()
@@ -188,7 +185,8 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
                            animations: {
                             self.vCircularProgress.transform = CGAffineTransform(scaleX: 1.25, y: 1.25)
             }, completion: {[unowned self] (_ : Bool) in self.tapticFeedbackOnRecordStateChange()})
-            addButtonPulseAnimation()
+            
+            addButtonPulseAnimation(gesture: gesture)
             
             if recordState == RecordState.None {
                 
@@ -235,7 +233,8 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
                 updateUI()
             }
         default:
-            print("other event at long press")
+            break
+            //print("other event at long press")
         }
     }
 
@@ -249,36 +248,39 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         }
     }
     
-    func addButtonPulseAnimation() {
+    func addButtonPulseAnimation(gesture: UILongPressGestureRecognizer) {
         
-            let pulseEffect1 = LFTPulseAnimation(repeatCount: Float.infinity, radius: 40, position: self.recordButton.center)
-            self.menuView.layer.insertSublayer(pulseEffect1, below: self.recordButton.layer)
-            pulseEffect1.radius = 180
-            pulseEffect1.backgroundColor = UIColor.white.cgColor
-        
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1) {
+        func addAnimationSublayer() {
             let pulseEffect1 = LFTPulseAnimation(repeatCount: Float.infinity, radius: 40, position: self.recordButton.center)
             self.menuView.layer.insertSublayer(pulseEffect1, below: self.recordButton.layer)
             pulseEffect1.radius = 180
             pulseEffect1.backgroundColor = UIColor.white.cgColor
         }
         
+        addAnimationSublayer()
+        
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1) {
+            print(gesture.state.rawValue)
+            if gesture.state == UIGestureRecognizerState.began ||  gesture.state == UIGestureRecognizerState.changed {
+                addAnimationSublayer()
+            }
+        }
+        
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2) {
-            let pulseEffect1 = LFTPulseAnimation(repeatCount: Float.infinity, radius: 40, position: self.recordButton.center)
-            self.menuView.layer.insertSublayer(pulseEffect1, below: self.recordButton.layer)
-            pulseEffect1.radius = 180
-            pulseEffect1.backgroundColor = UIColor.white.cgColor
+            print(gesture.state.rawValue)
+            if gesture.state == UIGestureRecognizerState.began ||  gesture.state == UIGestureRecognizerState.changed {
+                addAnimationSublayer()
+            }
         }
     }
     
     func removeButtonPulseAnimation() {
-        
-        for layer in menuView.layer.sublayers! {
+        for layer in self.menuView.layer.sublayers! {
             switch layer {
             case is LFTPulseAnimation:
                 layer.removeFromSuperlayer()
             default:
-               continue
+                continue
             }
         }
     }
@@ -505,19 +507,19 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
     func timerUpdate() {
          timerLabel.text = String(Int(timerCount))
 
-        let progress = 360/(60) * Double(timerCount)
-        let angle = progress
+        //let progress = 360/(60) * Double(timerCount)
+        //let angle = progress
 
 //        print(timerCount)
 //        print(angle)
-        vCircularProgress.angle = angle * 2
+        //vCircularProgress.angle = angle * 2
         
         if timerCount >= Constants.MainParameters.durations {
             audioRecorder.stop()
             UIView.animate(withDuration: 0.4, delay: 0.0, options:[], animations: {
                 self.view.backgroundColor = UIColor.recordBlack
             }, completion:nil)
-            vCircularProgress.angle = 360
+           // vCircularProgress.angle = 360
             recordingTimer.invalidate()
         }
         
