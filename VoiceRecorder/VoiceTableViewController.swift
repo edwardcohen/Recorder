@@ -209,8 +209,11 @@ class VoiceTableViewController: UIViewController {
         player.delegate = self
         if player.isPlaying {
             player.pause()
-            cell.waves.pause()
             cell.playButton.setImage(#imageLiteral(resourceName: "play") , for: UIControlState.normal)
+            guard let waveChronometer = cell.waves.playChronometer else {return}
+            if waveChronometer.isPlaying {
+                cell.waves.pause()
+            }
         } else {
             let data = voiceRecords[selectedCellIndexPath.row]
             cell.waves.audioVisualizationMode = .read
@@ -221,17 +224,16 @@ class VoiceTableViewController: UIViewController {
         }
     }
     
-    struct SoundRecord {
-        var audioFilePathLocal: URL?
-        var meteringLevels: [Float]?
-    }
-    
     @IBAction func rewindForwardButtonPressed(_ sender: UIButton) {
-        rewindCurrentFile(timeInterval: 1)
+        rewindCurrentFile(timeInterval: 5)
+//        guard
+//            let selectedCellIndexPath = selectedCellIndexPath,
+//            let cell = tableView.cellForRow(at: selectedCellIndexPath) as? VoiceTableCellView else {return}
+        //cell.waves
     }
     
     @IBAction func rewindBackwardButtonPressed(_ sender: UIButton) {
-        rewindCurrentFile(timeInterval: -1)
+        rewindCurrentFile(timeInterval: 5)
     }
     
     func setupViewsOfCalendar(startDate: Date, endDate: Date) {

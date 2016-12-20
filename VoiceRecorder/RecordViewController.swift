@@ -28,6 +28,7 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
     @IBOutlet var spinner: UIActivityIndicatorView!
     @IBOutlet var tagView: UICollectionView!
 //    @IBOutlet var audioWaveformView: SwiftSiriWaveformView!
+    @IBOutlet weak var recordsTableButton: UIButton!
     @IBOutlet weak var locationButton: UIButton!
     @IBOutlet weak var listButton: UIButton!
     @IBOutlet var vCircularProgress: KDCircularProgress!
@@ -47,7 +48,7 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
     var marks: [Double] = []
     var scrollView: UIScrollView?
     
-    // Speech Recognizor
+    // Speech Recognizer
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale.init(identifier: "en-US")) 
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
@@ -93,14 +94,14 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPressed))
         longPress.minimumPressDuration = 0.2
-//        let singleTap = UITapGestureRecognizer(target: self, action: #selector(singleTapped))
-//        singleTap.numberOfTapsRequired = 1
-//        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(doubleTapped))
-//        doubleTap.numberOfTapsRequired = 2
-          recordButton.addGestureRecognizer(longPress)
-//        recordButton.addGestureRecognizer(singleTap)
-//        recordButton.addGestureRecognizer(doubleTap)
-//        
+        let singleTap = UITapGestureRecognizer(target: self, action: #selector(singleTapped))
+        singleTap.numberOfTapsRequired = 1
+        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(doubleTapped))
+        doubleTap.numberOfTapsRequired = 2
+        recordButton.addGestureRecognizer(longPress)
+        recordButton.addGestureRecognizer(singleTap)
+        recordButton.addGestureRecognizer(doubleTap)
+        
         self.locationManager = CLLocationManager()
         self.locationManager.delegate = self
         
@@ -123,18 +124,6 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         }
     }
     
-    func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if segue.identifier == "showLastRecord" {
-            let destinationController = segue.destination as! VoiceDetailViewController
-            let voiceRecord = voiceRecords[0]
-            destinationController.voice = voiceRecord
-        }
-    }
-    
-    func showCalender() {
-        self.performSegue(withIdentifier: "SwipeToCalender", sender: nil)
-    }
-    
     func updateMeters() {
         if audioRecorder != nil {
             self.audioRecorder!.updateMeters()
@@ -145,6 +134,83 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         }
     }
     
+    // MARK: Actions
+    @IBAction func doneTapped() {
+        self.view.endEditing(true)
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM dd, yyyy"
+        let now = dateFormatter.string(from: Date())
+        if transTextView.text == "Transcript goes here..." {
+            transTextView.text = ""
+        }
+        
+        let trans = !((transTextView.text?.isEmpty)!) ? transTextView.text : "<No transcription>"
+        let length = timerCount - 1 < 0 ? 0 : timerCount - 1
+        //            try? self.viewModel.startPlaying()
+        // let tags = self.tags.filter() { $0 != "+" }
+        let location = currentLocation != nil ? currentLocation! : CLLocation()
+        let date = NSDate()
+        let marks = self.marks
+        let audio = audioFileURL!
+        
+        //        let voice = Voice(title: title,transcript :trans ,length: length, date: date, tags: tags, location: location, marks: marks, audio: audio)
+        //        saveRecordToCloud(voice)
+        if recordState == RecordState.Pause {
+            //            self.displayLink.invalidate()
+            stopRecording()
+            recordState = RecordState.Done
+            timerLabel.isHidden = true
+            updateUI()
+        }
+        
+        spinner.startAnimating()
+        
+        var voice: Voice!
+        
+        if let managedObjectContext = (UIApplication.shared.delegate as? AppDelegate)?.managedObjectContext {
+            voice = NSEntityDescription.insertNewObject(forEntityName: "Voice", into: managedObjectContext) as! Voice
+            voice.title = currentTitle
+            voice.tags = tags
+            voice.marks = marks
+            voice.length = NSNumber(value: length)
+            voice.location = location
+            voice.date = date
+            voice.audio = audio as NSURL
+            voice.transcript = trans
+            voice.metering = metering
+            //            saveRecordToCloud(voice)
+            
+            do {
+                try managedObjectContext.save()
+                self.spinner.stopAnimating()
+                print("Successed in saving records to the core data")
+            } catch {
+                print("Failed to save record to the core data: \(error)")
+                return
+            }
+        }
+        
+        if recordState == RecordState.Done {
+            //            self.tags.removeAll()
+            //            self.tags.append("+")
+            //            tagView.reloadData()
+            self.marks.removeAll()
+            recordState = RecordState.None
+            updateUI()
+            titleText.text = now
+            transTextView.text = "Transcript goes here..."
+            self.displayLink.isPaused = false
+        }
+        
+        if let scrollView = scrollView {
+            let somePosition = CGPoint(x: self.view.frame.size.width * 2, y: 0)
+            let voiceTable = self
+            //                self.superclass.childViewControllers[2] as! VoiceTableViewController
+            voiceTable.viewWillAppear(true)
+            scrollView.setContentOffset(somePosition, animated: true)
+        }
+    }
+
     @IBAction func handleDelete() {
         self.view.endEditing(true)
         let deleteAlert = UIAlertController(title: "Delete Record", message: "Are you sure you want to delete this record?", preferredStyle: .alert)
@@ -179,15 +245,9 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         switch gesture.state {
         case UIGestureRecognizerState.began:
             print("begin long press")
-            self.vCircularProgress.isHidden = true
+            //self.vCircularProgress.isHidden = true
             transTextView.isHidden = false
-            UIView.animate(withDuration: 0.4,
-                           animations: {
-                            self.vCircularProgress.transform = CGAffineTransform(scaleX: 1.25, y: 1.25)
-            }, completion: {[unowned self] (_ : Bool) in self.tapticFeedbackOnRecordStateChange()})
-            
-            addButtonPulseAnimation(gesture: gesture)
-            
+            animateRecordStart()
             if recordState == RecordState.None {
                 
                 startRecording()
@@ -248,45 +308,14 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         }
     }
     
-    func addButtonPulseAnimation(gesture: UILongPressGestureRecognizer) {
-        
-        func addAnimationSublayer() {
-            let pulseEffect1 = LFTPulseAnimation(repeatCount: Float.infinity, radius: 40, position: self.recordButton.center)
-            self.menuView.layer.insertSublayer(pulseEffect1, below: self.recordButton.layer)
-            pulseEffect1.radius = 180
-            pulseEffect1.backgroundColor = UIColor.white.cgColor
-        }
-        
-        addAnimationSublayer()
-        
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1) {
-            print(gesture.state.rawValue)
-            if gesture.state == UIGestureRecognizerState.began ||  gesture.state == UIGestureRecognizerState.changed {
-                addAnimationSublayer()
-            }
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2) {
-            print(gesture.state.rawValue)
-            if gesture.state == UIGestureRecognizerState.began ||  gesture.state == UIGestureRecognizerState.changed {
-                addAnimationSublayer()
-            }
-        }
-    }
-    
-    func removeButtonPulseAnimation() {
-        for layer in self.menuView.layer.sublayers! {
-            switch layer {
-            case is LFTPulseAnimation:
-                layer.removeFromSuperlayer()
-            default:
-                continue
-            }
-        }
-    }
-    
     func doubleTapped() {
         print("double tapped")
+        UIView.animate(withDuration: 0.4,
+                       animations: {
+                        self.vCircularProgress.transform = CGAffineTransform(scaleX: 1.25, y: 1.25)
+        }, completion: {[unowned self] (_ : Bool) in self.tapticFeedbackOnRecordStateChange()})
+        
+        addButtonPulseAnimation()
         if recordState == RecordState.None {
             startRecording()
             recordState = RecordState.Continuous
@@ -302,6 +331,11 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         switch recordState {
         case RecordState.Continuous:
             audioRecorder.pause()
+            UIView.animate(withDuration: 0.4,
+                           animations: {
+                            self.vCircularProgress.transform = CGAffineTransform.identity
+            }, completion: nil)
+            removeButtonPulseAnimation()
             recordingTimer.invalidate()
             newState = RecordState.Pause
             
@@ -314,6 +348,12 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
             
         case RecordState.Pause:
             marks.append(timerCount)
+            UIView.animate(withDuration: 0.4,
+                           animations: {
+                            self.vCircularProgress.transform = CGAffineTransform(scaleX: 1.25, y: 1.25)
+            }, completion: {[unowned self] (_ : Bool) in self.tapticFeedbackOnRecordStateChange()})
+            
+            addButtonPulseAnimation()
             audioRecorder.record()
             recordingTimer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(timerUpdate), userInfo: nil, repeats: true)
             timerUpdate()
@@ -327,11 +367,66 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         updateUI()
     }
     
+    // MARK: Recording animations
+    func addButtonPulseAnimation() {
+        
+        addPulseAnimationSublayer()
+        
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1) {
+            if self.recordState == RecordState.Continuous {
+                self.addPulseAnimationSublayer()
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2) {
+            if self.recordState == RecordState.Continuous {
+                self.addPulseAnimationSublayer()
+            }
+        }
+    }
+    
+    func addPulseAnimationSublayer() {
+        let pulseEffect1 = LFTPulseAnimation(repeatCount: Float.infinity, radius: 40, position: self.recordButton.center)
+        self.menuView.layer.insertSublayer(pulseEffect1, below: self.recordButton.layer)
+        pulseEffect1.radius = 180
+        pulseEffect1.backgroundColor = UIColor.white.cgColor
+    }
+    
+    
+    func removeButtonPulseAnimation() {
+        for layer in self.menuView.layer.sublayers! {
+            switch layer {
+            case is LFTPulseAnimation:
+                layer.removeFromSuperlayer()
+            default:
+                continue
+            }
+        }
+    }
+    
+    func animateRecordStart() {
+        UIView.animate(withDuration: 0.4,
+                       animations: {
+                        self.vCircularProgress.transform = CGAffineTransform(scaleX: 1.25, y: 1.25)
+        }, completion: {[unowned self] (_ : Bool) in self.tapticFeedbackOnRecordStateChange()})
+        
+        addButtonPulseAnimation()
+    }
+    
+    func animateRecordEnd() {
+        UIView.animate(withDuration: 0.4,
+                       animations: {
+                        self.vCircularProgress.transform = CGAffineTransform.identity
+        }, completion: nil)
+        removeButtonPulseAnimation()
+    }
+    
     func showedBasicButton(isHiddeMain: Bool, isHidde: Bool) {
         doneButton.isHidden = isHidde
         deleteButton.isHidden = isHidde
         //locationButton.isHidden = isHiddeMain
         //listButton.isHidden = isHiddeMain
+        recordsTableButton.isHidden = isHiddeMain
         locationButton.isHidden = true
         listButton.isHidden = true
         tagView.isHidden = isHiddeMain
@@ -376,6 +471,7 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         }
     }
     
+    // MARK: AVAudioPlayer
     func getDocumentsDirectoryURL() -> URL {
         let manager = FileManager.default
         let URLs = manager.urls(for: .documentDirectory, in: .userDomainMask)
@@ -407,75 +503,11 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
             audioRecorder.record()
             timerCount = 0
             recordingTimer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(timerUpdate), userInfo: nil, repeats: true)
-            timerUpdate()
+            //timerUpdate()
             metering.removeAll()
             self.audioMeteringLevelTimer = Timer.scheduledTimer(timeInterval: 0.05, target: self, selector: #selector(updateMeters), userInfo: nil, repeats: true)
         } catch {
             abortRecording()
-        }
-    }
-    
-    func SpeechTotextConversion() {
-        guard !audioEngine.isRunning else { return }
-        
-        if recordState == RecordState.Pause {
-            return
-        }
-
-        if let recognitionTask = recognitionTask {
-            recognitionTask.cancel()
-            self.recognitionTask = nil
-        }
-
-        recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
-        
-        guard let inputNode = audioEngine.inputNode else {
-            fatalError("Audio engine has no input node")
-        }
-        guard let recognitionRequest = recognitionRequest else {
-            fatalError("Unable to create an SFSpeechAudioBufferRecognitionRequest object")
-        }
-        
-        recognitionRequest.shouldReportPartialResults = true
-        if self.transTextView.text == "Transcript goes here..." {
-            self.transTextView.text = ""
-        }
-        let beforeString = self.transTextView.text ?? ""
-        
-        recognitionTask = speechRecognizer?.recognitionTask(with: recognitionRequest, resultHandler: { (result, error) in
-            var isFinal = false
-            if result != nil {
-                self.transTextView.text = beforeString + (result?.bestTranscription.formattedString)!
-//                    NSString(format: "%@ %@",beforeString!,(result?.bestTranscription.formattedString)!) as String
-                
-                let rangeBotm = NSMakeRange(self.transTextView.text.characters.count-1, 1)
-            
-                self.transTextView.scrollRangeToVisible(rangeBotm)
-
-                isFinal = (result?.isFinal)!
-            }
-            if error != nil || isFinal {
-                
-                self.audioEngine.stop()
-                inputNode.removeTap(onBus: 0)
-                self.recognitionRequest = nil
-                self.recognitionTask = nil
-                self.isconverstionActive = true
-                
-            }
-        })
-
-        let recordingFormat = inputNode.outputFormat(forBus: 0)
-        inputNode.removeTap(onBus: 0)
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat, block: { (buffer, when) in
-            self.recognitionRequest?.append(buffer)
-        })
-        
-        audioEngine.prepare()
-        do {
-            try audioEngine.start()
-        } catch {
-            print("audioEngine couldn't start because of an error.")
         }
     }
     
@@ -505,7 +537,8 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
     }
     
     func timerUpdate() {
-         timerLabel.text = String(Int(timerCount))
+        
+        timerLabel.text = Functions.timeString(timerCount)
 
         //let progress = 360/(60) * Double(timerCount)
         //let angle = progress
@@ -526,6 +559,73 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         timerCount = timerCount + 0.01
     }
     
+    // MARK: Speech to text convertion
+    func SpeechTotextConversion() {
+        guard !audioEngine.isRunning else { return }
+        
+        if recordState == RecordState.Pause {
+            return
+        }
+        
+        if let recognitionTask = recognitionTask {
+            recognitionTask.cancel()
+            self.recognitionTask = nil
+        }
+        
+        recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
+        
+        guard let inputNode = audioEngine.inputNode else {
+            fatalError("Audio engine has no input node")
+        }
+        guard let recognitionRequest = recognitionRequest else {
+            fatalError("Unable to create an SFSpeechAudioBufferRecognitionRequest object")
+        }
+        
+        recognitionRequest.shouldReportPartialResults = true
+        if self.transTextView.text == "Transcript goes here..." {
+            self.transTextView.text = ""
+        }
+        let beforeString = self.transTextView.text ?? ""
+        
+        recognitionTask = speechRecognizer?.recognitionTask(with: recognitionRequest, resultHandler: { (result, error) in
+            var isFinal = false
+            if result != nil {
+                self.transTextView.text = beforeString + (result?.bestTranscription.formattedString)!
+                //                    NSString(format: "%@ %@",beforeString!,(result?.bestTranscription.formattedString)!) as String
+                
+                let rangeBotm = NSMakeRange(self.transTextView.text.characters.count-1, 1)
+                
+                self.transTextView.scrollRangeToVisible(rangeBotm)
+                
+                isFinal = (result?.isFinal)!
+            }
+            if error != nil || isFinal {
+                
+                self.audioEngine.stop()
+                inputNode.removeTap(onBus: 0)
+                self.recognitionRequest = nil
+                self.recognitionTask = nil
+                self.isconverstionActive = true
+                
+            }
+        })
+        
+        let recordingFormat = inputNode.outputFormat(forBus: 0)
+        inputNode.removeTap(onBus: 0)
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat, block: { (buffer, when) in
+            self.recognitionRequest?.append(buffer)
+        })
+        
+        audioEngine.prepare()
+        do {
+            try audioEngine.start()
+        } catch {
+            print("audioEngine couldn't start because of an error.")
+        }
+    }
+    
+    
+    // MARK: Location
     func getQuickLocationUpdate() {
         // Request location authorization
         if CLLocationManager.locationServicesEnabled() {
@@ -560,118 +660,8 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         default: break
         }
     }
-//    @IBAction func recordTouchDown() {
-//
-//        
-////        if recordState == RecordState.Continuous {
-////            self.displayLink.paused = true
-////            audioRecorder.pause()
-////            recordingTimer.invalidate()
-////            recordState = RecordState.Pause
-////            updateUI()
-////        }
-//
-//
-//    }
-//    @IBAction func recordTouchUp() {
-//        
-////        if recordState == RecordState.None {
-////            startRecording()
-////            if self.displayLink.paused == true {
-////                self.displayLink.paused = false
-////            }
-////            //                recordState = RecordState.OneTime
-////            recordState = RecordState.Continuous
-////            updateUI()
-////        } else if recordState == RecordState.Pause {
-////            self.displayLink.paused = false
-////            marks.append(timerCount)
-////            audioRecorder.record()
-////            recordingTimer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: #selector(timerUpdate), userInfo: nil, repeats: true)
-////            timerUpdate()
-////            recordState = RecordState.Continuous
-////            updateUI()
-////        }
-//        
-//        
-//    }
-    @IBAction func doneTapped() {
-        self.view.endEditing(true)
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMM dd, yyyy"
-        let now = dateFormatter.string(from: Date())
-        if transTextView.text == "Transcript goes here..." {
-            transTextView.text = ""
-        }
 
-        let trans = !((transTextView.text?.isEmpty)!) ? transTextView.text : "<No transcription>"
-        let length = timerCount - 1 < 0 ? 0 : timerCount - 1
-//            try? self.viewModel.startPlaying()
-       // let tags = self.tags.filter() { $0 != "+" }
-        let location = currentLocation != nil ? currentLocation! : CLLocation()
-        let date = NSDate()
-        let marks = self.marks
-        let audio = audioFileURL!
-        
-//        let voice = Voice(title: title,transcript :trans ,length: length, date: date, tags: tags, location: location, marks: marks, audio: audio)
-//        saveRecordToCloud(voice)
-        if recordState == RecordState.Pause {
-//            self.displayLink.invalidate()
-            stopRecording()
-            recordState = RecordState.Done
-            timerLabel.isHidden = true
-            updateUI()
-        }
-
-        spinner.startAnimating()
-        
-        var voice: Voice!
-        
-        if let managedObjectContext = (UIApplication.shared.delegate as? AppDelegate)?.managedObjectContext {
-            voice = NSEntityDescription.insertNewObject(forEntityName: "Voice", into: managedObjectContext) as! Voice
-            voice.title = currentTitle
-            voice.tags = tags
-            voice.marks = marks
-            voice.length = NSNumber(value: length)
-            voice.location = location
-            voice.date = date
-            voice.audio = audio as NSURL
-            voice.transcript = trans
-            voice.metering = metering
-//            saveRecordToCloud(voice)
-
-            do {
-                try managedObjectContext.save()
-                self.spinner.stopAnimating()
-                print("Successed in saving records to the core data")
-            } catch {
-                print("Failed to save record to the core data: \(error)")
-                return
-            }
-        }
-        
-        if recordState == RecordState.Done {
-//            self.tags.removeAll()
-//            self.tags.append("+")
-//            tagView.reloadData()
-            self.marks.removeAll()
-            recordState = RecordState.None
-            updateUI()
-            titleText.text = now
-            transTextView.text = "Transcript goes here..."
-            self.displayLink.isPaused = false
-        }
-        
-        if let scrollView = scrollView {
-            let somePosition = CGPoint(x: self.view.frame.size.width * 2, y: 0)
-            let voiceTable = self
-//                self.superclass.childViewControllers[2] as! VoiceTableViewController
-            voiceTable.viewWillAppear(true)
-            scrollView.setContentOffset(somePosition, animated: true)
-        }
-    }
-    
-    // MARK: - CloudKit Methods
+    // MARK: CloudKit Methods
     func fetchAllRecords() {
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName:"Voice")
         let sortDescriptor = NSSortDescriptor(key: "date", ascending: false)
@@ -706,7 +696,7 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         record.setValue(voice.marks, forKey: "marks")
         record.setValue(voice.date, forKey: "date")
         record.setValue(voice.transcript, forKey: "transcript")
-        //TODO: - add metering
+        //TODO: add metering
         // Create audio asset for upload
         let audioAsset = CKAsset(fileURL: voice.audio as URL)
         record.setValue(audioAsset, forKey: "audio")
@@ -766,6 +756,7 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
     }
 }
 
+// MARK: UICollectionViewDataSource
 extension RecordViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return tags.count
@@ -781,6 +772,7 @@ extension RecordViewController: UICollectionViewDataSource {
     }
 }
 
+// MARK: UICollectionViewDelegate
 extension RecordViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 //        if tags[indexPath.item] == "+" {
@@ -805,12 +797,14 @@ extension RecordViewController: UICollectionViewDelegate {
     }
 }
 
+// MARK: ScrollViewRenewable impl
 extension RecordViewController: ScrollViewRenewable {
     func renew() {
         updateUI()
     }
 }
 
+// MARK: SFSpeechRecognizerDelegate
 extension RecordViewController: SFSpeechRecognizerDelegate {
     func speechRecognizer(_ speechRecognizer: SFSpeechRecognizer, availabilityDidChange available: Bool) {
         self.isconverstionActive = available
