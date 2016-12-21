@@ -730,6 +730,7 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
         publicDatabase.add(saveRecordsOperation)
     }
     
+    
     // MARK : Scroll to next screen
     @IBAction func goToMap(_ sender: UIButton) {
         if let scrollView = scrollView {
@@ -738,10 +739,15 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
     }
     
     @IBAction func goToList(_ sender: UIButton) {
-        if let scrollView = scrollView {
-            let somePosition = CGPoint(x: self.view.frame.size.width * 2, y: 0)
-            scrollView.setContentOffset(somePosition, animated: true)
+//        if let scrollView = scrollView {
+//            let somePosition = CGPoint(x: self.view.frame.size.width * 2, y: 0)
+//            scrollView.setContentOffset(somePosition, animated: true)
+//        }
+        let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
+        if let listVC = storyBoard.instantiateViewController(withIdentifier: "VoiceTableViewController") as? VoiceTableViewController {
+            self.present(listVC, animated:true, completion:nil)
         }
+        
     }
     
     

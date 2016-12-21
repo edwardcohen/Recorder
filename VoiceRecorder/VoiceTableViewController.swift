@@ -129,14 +129,14 @@ class VoiceTableViewController: UIViewController {
     
     func collapseCalendar(forseCollapse: Bool = false) {
         if self.calendarViewHeightContraint.constant == 0 && !forseCollapse {
-            collapseCalendarButton.setImage(UIImage(named:"icon_minus"), for: UIControlState.normal)
+//            collapseCalendarButton.setImage(UIImage(named:"icon_minus"), for: UIControlState.normal)
             UIView.animate(withDuration: 0.5, animations: {
                 self.weekDaysStackView.isHidden = false
                 self.calendarViewHeightContraint.constant = 200
                 self.view.layoutIfNeeded()
             })
         } else {
-            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
+//            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
             UIView.animate(withDuration: 0.5, animations: {
                 self.weekDaysStackView.isHidden = true
                 self.calendarViewHeightContraint.constant = 0
@@ -431,10 +431,11 @@ class VoiceTableViewController: UIViewController {
     }
     
     @IBAction func goToRecord(_ sender: UIButton) {
-        if let scrollView = scrollView {
-            let somePosition = CGPoint(x: self.view.frame.size.width, y: 0)
-            scrollView.setContentOffset(somePosition, animated: true)
-        }
+//        if let scrollView = scrollView {
+//            let somePosition = CGPoint(x: self.view.frame.size.width, y: 0)
+//            scrollView.setContentOffset(somePosition, animated: true)
+//        }
+        self.dismiss(animated: true, completion: nil)
     }
 }
 
@@ -698,7 +699,7 @@ extension VoiceTableViewController: UISearchBarDelegate {
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         self.view .addGestureRecognizer(taptoHidekeyBoard!)
         if self.calendarViewHeightContraint.constant > 0 {
-            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
+//            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
             UIView.animate(withDuration: 0.5, animations: {
                 self.weekDaysStackView.isHidden = true
                 self.calendarViewHeightContraint.constant = 0
@@ -710,7 +711,7 @@ extension VoiceTableViewController: UISearchBarDelegate {
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
         self.view.removeGestureRecognizer(taptoHidekeyBoard!)
         if self.calendarViewHeightContraint.constant == 0 {
-            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
+//            collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
             UIView.animate(withDuration: 0.5, animations: {
                 self.weekDaysStackView.isHidden = true
                 self.calendarViewHeightContraint.constant = 0
@@ -861,7 +862,7 @@ extension VoiceTableViewController: ScrollViewRenewable {
     }
     
     func collapseCalendarWithoutAnimation() {
-        collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
+//        collapseCalendarButton.setImage(UIImage(named:"icon_plus"), for: UIControlState.normal)
         self.weekDaysStackView.isHidden = true
         self.calendarViewHeightContraint.constant = 0
         self.view.layoutIfNeeded()
