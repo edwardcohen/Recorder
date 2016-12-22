@@ -57,7 +57,7 @@
                                 </connections>
                             </button>
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="Ik7-d5-Fp7">
-                                <rect key="frame" x="0.0" y="122" width="375" height="20.5"/>
+                                <rect key="frame" x="0.0" y="127" width="375" height="20.5"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" alpha="0.80000000000000004" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="S" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a95-i7-kdE">
                                         <rect key="frame" x="0.0" y="0.0" width="53.5" height="20.5"/>
@@ -106,7 +106,7 @@
                                 <color key="tintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </stackView>
                             <view opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZTy-ss-Xhd" customClass="JTAppleCalendarView" customModule="JTAppleCalendar">
-                                <rect key="frame" x="0.0" y="142.5" width="375" height="200"/>
+                                <rect key="frame" x="0.0" y="147.5" width="375" height="200"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
@@ -114,7 +114,7 @@
                                 </constraints>
                             </view>
                             <tableView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" rowHeight="200" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="g2D-n0-eoT">
-                                <rect key="frame" x="16" y="342.5" width="343" height="305.5"/>
+                                <rect key="frame" x="16" y="347.5" width="343" height="300.5"/>
                                 <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 <color key="separatorColor" white="1" alpha="0.5" colorSpace="calibratedWhite"/>
                                 <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
@@ -167,10 +167,10 @@
                                                     <rect key="frame" x="0.0" y="155.5" width="343" height="33"/>
                                                     <subviews>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eYE-Jw-43T">
-                                                            <rect key="frame" x="8" y="3" width="43" height="26.5"/>
+                                                            <rect key="frame" x="8" y="3" width="40" height="26.5"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="height" constant="26" id="QB6-oO-F4O"/>
-                                                                <constraint firstAttribute="width" constant="43" id="xhi-Is-7qM"/>
+                                                                <constraint firstAttribute="width" constant="40" id="xhi-Is-7qM"/>
                                                             </constraints>
                                                             <inset key="contentEdgeInsets" minX="10" minY="0.0" maxX="10" maxY="0.0"/>
                                                             <state key="normal" image="delete"/>
@@ -179,9 +179,9 @@
                                                             </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oEH-Q3-O1g">
-                                                            <rect key="frame" x="296" y="3" width="39" height="26.5"/>
+                                                            <rect key="frame" x="298" y="3" width="37" height="26.5"/>
                                                             <constraints>
-                                                                <constraint firstAttribute="width" constant="39" id="eXW-EG-XSG"/>
+                                                                <constraint firstAttribute="width" constant="37" id="eXW-EG-XSG"/>
                                                                 <constraint firstAttribute="height" constant="26" id="jAp-ui-iT9"/>
                                                             </constraints>
                                                             <inset key="contentEdgeInsets" minX="10" minY="0.0" maxX="10" maxY="0.0"/>
@@ -413,7 +413,7 @@
                             <constraint firstAttribute="trailing" secondItem="yQI-Nm-upZ" secondAttribute="trailing" id="gYx-id-q7S"/>
                             <constraint firstItem="ZTy-ss-Xhd" firstAttribute="top" secondItem="Ik7-d5-Fp7" secondAttribute="bottom" id="guW-Ps-6W0"/>
                             <constraint firstItem="Ik7-d5-Fp7" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="inS-n5-CzS"/>
-                            <constraint firstItem="Ik7-d5-Fp7" firstAttribute="top" secondItem="8n1-Sd-Xj4" secondAttribute="bottom" constant="16" id="jeC-LN-XKj"/>
+                            <constraint firstItem="Ik7-d5-Fp7" firstAttribute="top" secondItem="8n1-Sd-Xj4" secondAttribute="bottom" constant="21" id="jeC-LN-XKj"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="yQI-Nm-upZ" secondAttribute="bottom" id="kDh-jf-rOJ"/>
                             <constraint firstItem="8n1-Sd-Xj4" firstAttribute="top" secondItem="i5M-yw-8qa" secondAttribute="bottom" constant="5" id="pFt-gD-QP8"/>
                             <constraint firstAttribute="trailing" secondItem="Ik7-d5-Fp7" secondAttribute="trailing" id="rab-vu-tae"/>

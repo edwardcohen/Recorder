@@ -635,8 +635,8 @@ extension VoiceTableViewController: UITableViewDataSource {
         
         let heightText = Functions.getStringHeight(voiceRecord.transcript, font: UIFont(name: "SFUIDisplay-Regular", size: 13)!, width: self.view.frame.width - 32)
         //think about this for others devices
-        cell.topWavesConstrains.constant = 79.0 + heightText - 16
-        cell.topPlayerConstrains.constant = 147.5 + heightText - 16
+        cell.topWavesConstrains.constant = 79.0 + heightText - 21
+        cell.topPlayerConstrains.constant = 147.5 + heightText - 21
         
         cell.voiceRecord = voiceRecord
         cell.backgroundColor = .clear

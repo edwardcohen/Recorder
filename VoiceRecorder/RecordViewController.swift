@@ -202,13 +202,18 @@ class RecordViewController: UIViewController, NSFetchedResultsControllerDelegate
             self.displayLink.isPaused = false
         }
         
-        if let scrollView = scrollView {
-            let somePosition = CGPoint(x: self.view.frame.size.width * 2, y: 0)
-            let voiceTable = self
-            //                self.superclass.childViewControllers[2] as! VoiceTableViewController
-            voiceTable.viewWillAppear(true)
-            scrollView.setContentOffset(somePosition, animated: true)
+        let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
+        if let listVC = storyBoard.instantiateViewController(withIdentifier: "VoiceTableViewController") as? VoiceTableViewController {
+            self.present(listVC, animated:true, completion:nil)
         }
+        
+//        if let scrollView = scrollView {
+//            let somePosition = CGPoint(x: self.view.frame.size.width * 2, y: 0)
+//            let voiceTable = self
+//            //                self.superclass.childViewControllers[2] as! VoiceTableViewController
+//            voiceTable.viewWillAppear(true)
+//            scrollView.setContentOffset(somePosition, animated: true)
+//        }
     }
 
     @IBAction func handleDelete() {
