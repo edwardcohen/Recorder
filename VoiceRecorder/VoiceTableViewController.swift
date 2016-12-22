@@ -679,18 +679,56 @@ extension VoiceTableViewController: UITableViewDelegate {
             if selectedCellIndexPath == indexPath {
                 selectedCellIndexPath = nil
                 audioPlayer?.stop()
+                
+                UIView.animate(withDuration: 0.3,
+                               animations: {
+                                self.calendarView.alpha = 1
+                                self.buttonsView.alpha = 1
+                                self.monthLabel.alpha = 1
+                                self.collapseCalendarButton.alpha = 1
+                }, completion: nil)
+                
             } else {
                 selectedCellIndexPath = indexPath
                 initAudioPlayer()
                 cell.playButton.setImage(#imageLiteral(resourceName: "play") , for: UIControlState.normal)
+                
+                UIView.animate(withDuration: 0.3,
+                               animations: {
+                                self.calendarView.alpha = 0.75
+                                 self.buttonsView.alpha = 0.75
+                                self.monthLabel.alpha = 0.75
+                                self.collapseCalendarButton.alpha = 0.75
+                }, completion: nil)
             }
             
             tableView.beginUpdates()
             tableView.deselectRow(at: indexPath, animated: true)
             tableView.endUpdates()
-    //        self.tableView.reloadData()
+            
+            if let visibleCellsIndexes = tableView.indexPathsForVisibleRows {
+                for cellIndexPath in visibleCellsIndexes {
+                    guard let cell = tableView.cellForRow(at: cellIndexPath),
+                        let selectedIndex = selectedCellIndexPath else { continue}
+                    
+                    if selectedIndex == cellIndexPath {
+                        cell.alpha = 1
+                    } else {
+                        cell.alpha = 0.75
+                    }
+                }
+            }
+            
         }
     }
+    
+//    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+//        guard let selectedCellIndex = selectedCellIndexPath else {return}
+//        
+//        if indexPath != selectedCellIndex {
+//            cell.alpha = 0.75
+//        }
+//    }
 }
 
 // MARK: UISearchBarDelegate
