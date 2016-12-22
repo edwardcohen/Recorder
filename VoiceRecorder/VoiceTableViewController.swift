@@ -670,10 +670,6 @@ extension VoiceTableViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        let array = tableView.indexPathsForSelectedRows ?? []
-//        for index in array {
-//            print(index.row)
-//        }
         collapseCalendar(forseCollapse: true)
         if let cell = tableView.cellForRow(at: indexPath) as? VoiceTableCellView {
             if selectedCellIndexPath == indexPath {
@@ -696,7 +692,7 @@ extension VoiceTableViewController: UITableViewDelegate {
                 UIView.animate(withDuration: 0.3,
                                animations: {
                                 self.calendarView.alpha = 0.75
-                                 self.buttonsView.alpha = 0.75
+                                self.buttonsView.alpha = 0.75
                                 self.monthLabel.alpha = 0.75
                                 self.collapseCalendarButton.alpha = 0.75
                 }, completion: nil)
@@ -718,17 +714,8 @@ extension VoiceTableViewController: UITableViewDelegate {
                     }
                 }
             }
-            
         }
     }
-    
-//    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-//        guard let selectedCellIndex = selectedCellIndexPath else {return}
-//        
-//        if indexPath != selectedCellIndex {
-//            cell.alpha = 0.75
-//        }
-//    }
 }
 
 // MARK: UISearchBarDelegate
