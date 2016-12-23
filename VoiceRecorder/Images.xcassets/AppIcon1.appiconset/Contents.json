@@ -3,67 +3,67 @@
     {
       "size" : "20x20",
       "idiom" : "iphone",
-      "filename" : "tap r  20@2x.png",
+      "filename" : "20@2x.png",
       "scale" : "2x"
     },
     {
       "size" : "20x20",
       "idiom" : "iphone",
-      "filename" : "tap r  20@3x.png",
+      "filename" : "20@3x.png",
       "scale" : "3x"
     },
     {
       "size" : "29x29",
       "idiom" : "iphone",
-      "filename" : "tap r  29.png",
+      "filename" : "Background.png",
       "scale" : "1x"
     },
     {
       "size" : "29x29",
       "idiom" : "iphone",
-      "filename" : "tap r  29@2x.png",
+      "filename" : "Background@2x.png",
       "scale" : "2x"
     },
     {
       "size" : "29x29",
       "idiom" : "iphone",
-      "filename" : "tap r  29@3x.png",
+      "filename" : "Background@3x.png",
       "scale" : "3x"
     },
     {
       "size" : "40x40",
       "idiom" : "iphone",
-      "filename" : "tap r  40@2x.png",
+      "filename" : "40@2x.png",
       "scale" : "2x"
     },
     {
       "size" : "40x40",
       "idiom" : "iphone",
-      "filename" : "tap r  40@3x.png",
+      "filename" : "40@3x.png",
       "scale" : "3x"
     },
     {
       "size" : "57x57",
       "idiom" : "iphone",
-      "filename" : "tap r  57.png",
+      "filename" : "57.png",
       "scale" : "1x"
     },
     {
       "size" : "57x57",
       "idiom" : "iphone",
-      "filename" : "tap r  57@2x.png",
+      "filename" : "57@2x.png",
       "scale" : "2x"
     },
     {
       "size" : "60x60",
       "idiom" : "iphone",
-      "filename" : "tap r  60@2x.png",
+      "filename" : "60@2x.png",
       "scale" : "2x"
     },
     {
       "size" : "60x60",
       "idiom" : "iphone",
-      "filename" : "tap r  60@3x.png",
+      "filename" : "60@3x.png",
       "scale" : "3x"
     }
   ],
