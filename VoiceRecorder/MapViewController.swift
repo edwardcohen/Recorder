@@ -30,3 +30,10 @@ class MapViewController: UIViewController {
         }
     }
 }
+
+extension MapViewController: ScrollViewRenewable {
+    
+    func renew() {
+        //TODO
+    }
+}

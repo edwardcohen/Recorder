@@ -18,17 +18,27 @@ extension UIColor {
     static var recordRed: UIColor {
         return UIColor(red: 255/255.0, green: 60/255.0, blue: 49/255.0, alpha: 1.0)
     }
-}
-
-
-extension UIViewController {
-    func addGradientFooter() {
-        let view = UIView(frame: CGRect(x: 0, y: self.view.frame.height - 90, width: self.view.frame.width, height: 90))
-        let gradient = Gradient().gl
-        gradient.frame = view.bounds
-        view.layer.addSublayer(gradient)
-        view.alpha = 0.4
-        self.view.addSubview(view)
+    
+    static func hex(hex: String) -> UIColor {
+        var cString:String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        
+        if (cString.hasPrefix("#")) {
+            cString.remove(at: cString.startIndex)
+        }
+        
+        if ((cString.characters.count) != 6) {
+            return UIColor.gray
+        }
+        
+        var rgbValue:UInt32 = 0
+        Scanner(string: cString).scanHexInt32(&rgbValue)
+        
+        return UIColor(
+            red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,
+            green: CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0,
+            blue: CGFloat(rgbValue & 0x0000FF) / 255.0,
+            alpha: CGFloat(1.0)
+        )
     }
 }
 
@@ -58,4 +68,14 @@ extension Date {
         components.setValue(1, for: .month)
         return calendar.date(from: components)!
     }
+}
+
+extension UIScrollView {
+    var currentPage: Int {
+        return Int((self.contentOffset.x + (0.5 * self.frame.size.width))/self.frame.width) + 1
+    }
+}
+
+protocol ScrollViewRenewable {
+    func renew()
 }

@@ -6,6 +6,7 @@
 //  Copyright © 2016 OS-Tech. All rights reserved.
 //
 
+/// Methods in this class are meant to be overridden and will be called by its collection view to gather layout information.
 open class JTAppleCalendarLayout: UICollectionViewLayout, JTAppleCalendarLayoutProtocol {
     let errorDelta: CGFloat = 0.0000001
     var itemSize: CGSize = CGSize.zero
@@ -264,8 +265,8 @@ open class JTAppleCalendarLayout: UICollectionViewLayout, JTAppleCalendarLayoutP
     }
 
     /// Returns the layout attributes for the item at the specified index
-    // path. A layout attributes object containing the information to apply
-    // to the item’s cell.
+    /// path. A layout attributes object containing the information to apply
+    /// to the item’s cell.
     override open func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
             // If this index is already cached, then return it else,
             // apply a new layout attribut to it
@@ -372,10 +373,7 @@ open class JTAppleCalendarLayout: UICollectionViewLayout, JTAppleCalendarLayoutP
                 }
 
                 let currentMonth = monthData[monthMap[indexPath.section]!]
-                size.height =
-                    (collectionView!.frame.height - headerSize.height) /
-                    CGFloat(currentMonth.maxNumberOfRowsForFull(
-                        developerSetRows: numberOfRows))
+                size.height = (collectionView!.frame.height - headerSize.height) / CGFloat(currentMonth.maxNumberOfRowsForFull(developerSetRows: numberOfRows))
                 currentCell = (section: indexPath.section, itemSize: size)
             }
         } else {
@@ -488,23 +486,42 @@ open class JTAppleCalendarLayout: UICollectionViewLayout, JTAppleCalendarLayoutP
     ///   upper-left corner of the visible content
     /// - returns: The content offset that you want to use instead
     open override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
+        var retval = proposedContentOffset
         if let lastOffsetIndex = delegate.lastIndexOffset {
             delegate.lastIndexOffset = nil
 
             switch lastOffsetIndex.1 {
             case .supplementaryView:
                 if let headerAttr = layoutAttributesForSupplementaryView(ofKind: UICollectionElementKindSectionHeader, at: lastOffsetIndex.0) {
-                    return scrollDirection == .horizontal ? CGPoint(x: headerAttr.frame.origin.x, y: 0) : CGPoint(x: 0, y: headerAttr.frame.origin.y)
+                    retval = scrollDirection == .horizontal ? CGPoint(x: headerAttr.frame.origin.x, y: 0) : CGPoint(x: 0, y: headerAttr.frame.origin.y)
                 }
             case .cell:
                 if let cellAttr = layoutAttributesForItem(at: lastOffsetIndex.0) {
-                    return  scrollDirection == .horizontal ? CGPoint(x: cellAttr.frame.origin.x, y: 0) : CGPoint(x: 0, y: cellAttr.frame.origin.y)
+                    retval = scrollDirection == .horizontal ? CGPoint(x: cellAttr.frame.origin.x, y: 0) : CGPoint(x: 0, y: cellAttr.frame.origin.y)
                 }
             default:
                 break
             }
+            
+            // Floating point issues. number could appear the same, but are not.
+            // thereby causing UIScollView to think it has scrolled
+            let retvalOffset: CGFloat
+            let calendarOffset: CGFloat
+            
+            switch scrollDirection {
+                case .horizontal:
+                    retvalOffset = retval.x
+                    calendarOffset = collectionView!.contentOffset.x
+                case .vertical:
+                    retvalOffset = retval.y
+                    calendarOffset = collectionView!.contentOffset.y
+            }
+            
+            if  abs(retvalOffset - calendarOffset) < errorDelta {
+                retval = collectionView!.contentOffset
+            }
         }
-        return proposedContentOffset
+        return retval
     }
 
     func clearCache() {

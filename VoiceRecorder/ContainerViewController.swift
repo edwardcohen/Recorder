@@ -12,6 +12,8 @@ class ContainerViewController: UIViewController {
 
     @IBOutlet weak var scrollView: UIScrollView!
     
+    var pageControllers: [ScrollViewRenewable] = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // 1) Create the three views used in the swipe container view
@@ -21,6 +23,10 @@ class ContainerViewController: UIViewController {
         recordController.scrollView = self.scrollView
         let voiceTableController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "VoiceTableViewController") as! VoiceTableViewController
         voiceTableController.scrollView = self.scrollView
+        
+        pageControllers.append(mapController)
+        pageControllers.append(recordController)
+        pageControllers.append(voiceTableController)
         
         // 2) Add in each view to the container view hierarchy. Add them in opposite order since the view hieracrhy is a stack
         self.addChildViewController(voiceTableController)
@@ -51,5 +57,32 @@ class ContainerViewController: UIViewController {
         let somePosition = CGPoint(x: scrollView.frame.size.width, y: 0)
         self.scrollView!.contentSize = CGSize(width: scrollWidth, height: scrollHeight)
         scrollView.setContentOffset(somePosition, animated: false)
+        
+        scrollView.delegate = self
+    }
+}
+
+// MARK: UIScrollViewDelegate
+extension ContainerViewController: UIScrollViewDelegate {
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        updatePresentingController()
+    }
+    
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView)  {
+        updatePresentingController()
+    }
+    
+    func updatePresentingController() {
+        let currentPage = scrollView.currentPage
+        let currentController = pageControllers[currentPage - 1]
+        currentController.renew()
+        
+        if currentPage != 3 {
+            let voiceTableController = pageControllers[2] as! VoiceTableViewController
+            voiceTableController.collapseCalendarWithoutAnimation()
+        }
+        
+        print("updatePresentingController: \(currentPage)")
     }
 }

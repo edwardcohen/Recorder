@@ -9,44 +9,40 @@
 import UIKit
 import MapKit
 import AVFoundation
+import SoundWave
 
 class VoiceTableCellView: UITableViewCell {
+    
+    @IBOutlet weak var topWavesConstrains: NSLayoutConstraint!
+    @IBOutlet weak var topPlayerConstrains: NSLayoutConstraint!
     
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var lengthLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var dayLabel: UILabel!
-    @IBOutlet weak var transcriptionTextField: UITextView!
+    @IBOutlet weak var transcription: UILabel!
     @IBOutlet weak var playButton: UIButton!
+    @IBOutlet weak var waves: AudioVisualizationView!
     
-    var tags = [String]()
-    
+    var tags: [String] = []
     var sizingCell: TagCellView?
-    
-    var voiceFileURL : NSURL?
-    
+    var voiceFileURL: NSURL?
     var audioPlayer: AVAudioPlayer?
-    
     var timer: Timer?
-    
-    var session:AVAudioSession?
-    
+    var session: AVAudioSession?
     var isPlaying = false
     
 //    @IBOutlet var tagView: UICollectionView!
 //    @IBOutlet weak var mapView: MKMapView!
 //    @IBOutlet weak var progressView: UIProgressView!
 //    @IBOutlet weak var playButton: UIButton!
-    
-    
 //    @IBOutlet weak var detailView: UIView!
-    
     var voiceRecord: Voice? {
         didSet {
             if let voiceRecord = voiceRecord {
                 
                 titleLabel.text = voiceRecord.title
-                transcriptionTextField.text = voiceRecord.transcript
+                transcription.text = voiceRecord.transcript
                 
                 let  minutes = voiceRecord.length.intValue / 60
                 let  seconds = voiceRecord.length.intValue % 60
@@ -70,32 +66,8 @@ class VoiceTableCellView: UITableViewCell {
                 annotation.coordinate = voiceRecord.location.coordinate
                 
                 voiceFileURL = voiceRecord.audio
-                
             }
         }
-    }
-    
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        
-////        tagView.dataSource = self
-////        tagView.delegate = self
-//        
-//        let cellNib = UINib(nibName: "TagCellView", bundle: nil)
-////        self.tagView.registerNib(cellNib, forCellWithReuseIdentifier: "TagCell")
-////        self.tagView.backgroundColor = UIColor.clearColor()
-//        self.sizingCell = (cellNib.instantiate(withOwner: nil, options: nil) as NSArray).firstObject as! TagCellView?
-////        tagView.reloadData()
-//        print("Called VoiceTableCellView awakeFromNib()")
-    }
-    
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-//        if selected {
-//            initAudioPlayer()
-//        } else {
-//            stopAudioPlayer()
-//        }
     }
     
     func initAudioPlayer() {
