@@ -15,7 +15,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "728"
             endingLineNumber = "728"
-            landmarkName = "filterContentForSearchText(searchText:scope:)"
+            landmarkName = "searchBarTextDidBeginEditing(_:)"
             landmarkType = "7">
             <Locations>
                <Location
